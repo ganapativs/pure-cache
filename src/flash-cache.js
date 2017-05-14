@@ -3,23 +3,19 @@
  */
 
 import LZW from './LZW';
-import {Stringify, Parse, isExisty} from './util';
+import {isExisty} from './util';
 
 let _defaultConfig = {
     // Cache expiry time, 1000ms by default
     // Set `false` to disable expiry(This beats the purpose of cache).
     // `0` will be treated as `false`
     expireIn: 1000,
-    // Should compress the data, will save some bytes, but more processing
-    compress: false
+    // Should compress the data if data is string, will save some bytes, but more processing
+    compressStrings: false
 };
 
 /**
  * flash-cache: Ultra fast in memory cache for simple data.
- *
- * Warning: Use flashCache to save only simple data, do not save scoped
- * variables like objects with functions as they will be lost if
- * compress option is true (Input will be stringified)
  */
 export default function flashCache(config = _defaultConfig) {
     let _listeners = Object.create(null);
@@ -46,12 +42,11 @@ export default function flashCache(config = _defaultConfig) {
                 value,
                 time: Date.now()
             };
-            let {compress, expireIn} = config;
+            let {compressStrings, expireIn} = config;
 
-            if (compress) {
+            if (compressStrings && typeof value === 'string') {
                 __cache__._compressed = true;
-                __cache__._isObject = typeof value === 'object';
-                __cache__.value = LZW.compress(Stringify(value));
+                __cache__.value = LZW.compress(value);
             }
 
             // Ignore both `0` & `false`
@@ -85,18 +80,14 @@ export default function flashCache(config = _defaultConfig) {
             let __cache__ = this._cache[key];
 
             if (__cache__) {
-                // Extract private _isObject, _compressed, _expirer function
-                let {_expirer, _isObject, _compressed, ...cache} = __cache__;
+                // Extract private _compressed, _expirer function
+                let {_expirer, _compressed, ...cache} = __cache__;
 
                 // Make copy of cache
                 cache = Object.assign({}, cache);
 
                 if (_compressed) {
                     cache.value = LZW.decompress(cache.value);
-                }
-
-                if (_isObject) {
-                    cache.value = Parse(cache.value);
                 }
 
                 // Trigger `get` event
@@ -109,7 +100,7 @@ export default function flashCache(config = _defaultConfig) {
         },
 
         /**
-         * Remove data from cache
+         * Remove data/Invalidate from cache
          *
          * @param {String} key  Cache key to be removed
          * @param {Boolean} isExpired  Boolean to indicate whether cache is removed by expiry timeout

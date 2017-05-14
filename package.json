@@ -1,0 +1,9 @@
+{
+  "name": "flash-cache",
+  "version": "0.1.0",
+  "description": "Ultra fast data caching for node & browser ⚡",
+  "main": "index.js",
+  "repository": "https://github.com/ganapativs/flash-cache.git",
+  "author": "Ganapati V S <vsg.inbox@gmail.com>",
+  "license": "MIT"
+}

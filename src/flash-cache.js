@@ -11,7 +11,7 @@ let _defaultConfig = {
     // `0` will be treated as `false`
     expireIn: 1000,
     // Should compress the data if data is string, will save some bytes, but more processing
-    compressStrings: false
+    compressStrings: true
 };
 
 /**

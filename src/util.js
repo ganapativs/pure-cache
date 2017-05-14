@@ -8,6 +8,11 @@
 export let Stringify = (json) => JSON.stringify(json);
 
 /**
+ * Parse JSON
+ * */
+export let Parse = (json) => JSON.parse(json);
+
+/**
  * Check if variable has some value
  * */
 export let isExisty = (val) => val !== null && val !== undefined;

@@ -3,7 +3,7 @@
  */
 
 import LZW from './LZW';
-import {Stringify, isExisty} from './util';
+import {Stringify, Parse, isExisty} from './util';
 
 let _defaultConfig = {
     // Cache expiry time, 1000ms by default
@@ -50,6 +50,7 @@ export default function flashCache(config = _defaultConfig) {
 
             if (compress) {
                 __cache__._compressed = true;
+                __cache__._isObject = typeof value === 'object';
                 __cache__.value = LZW.compress(Stringify(value));
             }
 
@@ -84,14 +85,18 @@ export default function flashCache(config = _defaultConfig) {
             let __cache__ = this._cache[key];
 
             if (__cache__) {
-                // Extract private _compressed, _expirer function
-                let {_expirer, _compressed, ...cache} = __cache__;
+                // Extract private _isObject, _compressed, _expirer function
+                let {_expirer, _isObject, _compressed, ...cache} = __cache__;
 
                 // Make copy of cache
                 cache = Object.assign({}, cache);
 
                 if (_compressed) {
                     cache.value = LZW.decompress(cache.value);
+                }
+
+                if (_isObject) {
+                    cache.value = Parse(cache.value);
                 }
 
                 // Trigger `get` event

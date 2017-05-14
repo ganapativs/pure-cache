@@ -17,14 +17,15 @@ let _defaultConfig = {
 /**
  * flash-cache: Ultra fast in-memory cache.
  */
-export default function flashCache(config = _defaultConfig) {
+module.exports = function flashCache(config = _defaultConfig) {
     let _listeners = Object.create(null);
+    let _cache = Object.create(null);
 
     return {
         /**
          * Expose cache, useful to get entire cache
          * */
-        _cache: Object.create(null),
+        _cache,
 
         /**
          * Expose config copy for future use
@@ -50,6 +51,7 @@ export default function flashCache(config = _defaultConfig) {
             }
 
             // Ignore both `0` & `false`
+            // Basically if there is no expiry, cache will act as simple in-memory data store.
             if (expireIn) {
                 // Store timeout, might be required for later use
                 __cache__.expiryAt = __cache__.time + expireIn;
@@ -57,18 +59,18 @@ export default function flashCache(config = _defaultConfig) {
                 // Remove the cache after expiry time
                 __cache__._expirer = setTimeout(() => {
                     // Trigger `expiry` event
-                    this.emit('expiry', {key, data: this._cache[key]});
+                    this.emit('expiry', {key, data: _cache[key]});
 
                     this.remove(key, true);
                 }, expireIn);
             }
 
-            this._cache[key] = __cache__;
+            _cache[key] = __cache__;
 
             // Trigger `add` event
-            this.emit('add', {key, data: this._cache[key]});
+            this.emit('add', {key, data: _cache[key]});
 
-            return true;
+            return _cache[key];
         },
 
         /**
@@ -77,7 +79,7 @@ export default function flashCache(config = _defaultConfig) {
          * @param {String} key  Cache key
          * */
         get(key = '') {
-            let __cache__ = this._cache[key];
+            let __cache__ = _cache[key];
 
             if (__cache__) {
                 // Extract private _compressed, _expirer function
@@ -106,7 +108,7 @@ export default function flashCache(config = _defaultConfig) {
          * @param {Boolean} isExpired  Boolean to indicate whether cache is removed by expiry timeout
          * */
         remove(key, isExpired = false) {
-            let __cache__ = this._cache[key];
+            let __cache__ = _cache[key];
 
             if (__cache__) {
                 let {_expirer} = __cache__;
@@ -115,7 +117,7 @@ export default function flashCache(config = _defaultConfig) {
                     clearTimeout(_expirer);
                 }
 
-                delete this._cache[key];
+                delete _cache[key];
 
                 // Trigger `remove` event
                 this.emit('remove', {key, expired: isExpired});
@@ -130,7 +132,7 @@ export default function flashCache(config = _defaultConfig) {
          * Clear entire cache
          * */
         clear() {
-            this._cache = Object.create(null);
+            _cache = Object.create(null);
 
             // Trigger `clear` event
             this.emit('clear', {});
@@ -180,4 +182,4 @@ export default function flashCache(config = _defaultConfig) {
             });
         }
     }
-}
+};

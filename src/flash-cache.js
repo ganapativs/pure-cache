@@ -15,7 +15,7 @@ let _defaultConfig = {
 };
 
 /**
- * flash-cache: Ultra fast in memory cache.
+ * flash-cache: Ultra fast in-memory cache.
  */
 export default function flashCache(config = _defaultConfig) {
     let _listeners = Object.create(null);

@@ -132,6 +132,9 @@ export default function flashCache(config = _defaultConfig) {
         clear() {
             this._cache = Object.create(null);
 
+            // Trigger `clear` event
+            this.emit('clear', {});
+
             return true;
         },
 

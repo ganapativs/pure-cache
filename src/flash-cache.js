@@ -127,6 +127,15 @@ export default function flashCache(config = _defaultConfig) {
         },
 
         /**
+         * Clear entire cache
+         * */
+        clear() {
+            this._cache = Object.create(null);
+
+            return true;
+        },
+
+        /**
          * Add cache event listener
          * Snippet borrowed from @developit/mitt
          *

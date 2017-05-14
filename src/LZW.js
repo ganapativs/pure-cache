@@ -1,5 +1,5 @@
 /**
- * LZW Compression/Decompression for Strings
+ * Lempel-Ziv-Welch (LZW) algorithm Compression/Decompression for Strings
  * http://rosettacode.org/wiki/LZW_compression#JavaScript
  *
  * let str = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.

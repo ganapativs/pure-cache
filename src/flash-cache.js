@@ -9,7 +9,7 @@ let _defaultConfig = {
     // Cache expiry time, 1000ms by default
     // Set `false` to disable expiry(This beats the purpose of cache).
     // `0` will be treated as `false`
-    expireIn: 1000,
+    expireIn: 60000,
     // Should compress the data if data is string, will save some bytes, but more processing
     compressStrings: true
 };

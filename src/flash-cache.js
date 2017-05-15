@@ -6,7 +6,7 @@ import LZW from './LZW';
 import {isExisty} from './util';
 
 let _defaultConfig = {
-    // Cache expiry time, 1000ms by default
+    // Cache expiry time, 60000ms(60s) by default
     // Set `false` to disable expiry(This beats the purpose of cache).
     // `0` will be treated as `false`
     expireIn: 60000,

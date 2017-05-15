@@ -121,6 +121,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var compressStrings = config.compressStrings,
 	                expireIn = config.expireIn;
 	
+	            // Compress and store strings
 	
 	            if (compressStrings && typeof value === 'string') {
 	                __cache__._compressed = true;
@@ -172,6 +173,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                cache = Object.assign({}, cache);
 	
+	                // If data is compressed string, uncompress
 	                if (_compressed) {
 	                    cache.value = _LZW2.default.decompress(cache.value);
 	                }
@@ -200,11 +202,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (__cache__) {
 	                var _expirer = __cache__._expirer;
 	
+	                // If expirer exists, clear it
 	
 	                if ((0, _util.isExisty)(_expirer)) {
 	                    clearTimeout(_expirer);
 	                }
 	
+	                // Remove key & value from cache
 	                delete _cache[key];
 	
 	                // Trigger `remove` event

@@ -50,6 +50,7 @@ module.exports = function flashCache(config = _defaultConfig) {
             };
             let {compressStrings, expireIn} = config;
 
+            // Compress and store strings
             if (compressStrings && typeof value === 'string') {
                 __cache__._compressed = true;
                 __cache__.value = LZW.compress(value);
@@ -93,6 +94,7 @@ module.exports = function flashCache(config = _defaultConfig) {
                 // Make copy of cache
                 cache = Object.assign({}, cache);
 
+                // If data is compressed string, uncompress
                 if (_compressed) {
                     cache.value = LZW.decompress(cache.value);
                 }
@@ -118,10 +120,12 @@ module.exports = function flashCache(config = _defaultConfig) {
             if (__cache__) {
                 let {_expirer} = __cache__;
 
+                // If expirer exists, clear it
                 if (isExisty(_expirer)) {
                     clearTimeout(_expirer);
                 }
 
+                // Remove key & value from cache
                 delete _cache[key];
 
                 // Trigger `remove` event

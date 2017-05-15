@@ -9,9 +9,14 @@
     "test-browser": "gulp test-browser",
     "watch": "gulp watch",
     "build": "gulp build",
+    "add-dist": "git add dist",
     "coverage": "gulp coverage",
     "prepublish": "yarn run build"
   },
+  "pre-commit": [
+    "build",
+    "add-dist"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/ganapativs/flash-cache.git"
@@ -59,6 +64,7 @@
     "isparta": "4.0.0",
     "json-loader": "0.5.4",
     "mocha": "3.0.2",
+    "pre-commit": "^1.2.2",
     "sinon": "1.17.5",
     "sinon-chai": "2.8.0",
     "webpack": "1.13.2",

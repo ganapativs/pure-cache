@@ -109,6 +109,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var key = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 	            var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 	
+	            // Remove existing values, if any
+	            if (_cache[key]) {
+	                this.remove(key, true);
+	            }
+	
 	            var __cache__ = {
 	                value: value,
 	                time: Date.now()

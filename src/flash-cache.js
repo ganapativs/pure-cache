@@ -39,6 +39,11 @@ module.exports = function flashCache(config = _defaultConfig) {
          * @param {String|Object} value Value to be stored against cache key
          * */
         put(key = '', value = '') {
+            // Remove existing values, if any
+            if (_cache[key]) {
+                this.remove(key, true);
+            }
+
             let __cache__ = {
                 value,
                 time: Date.now()

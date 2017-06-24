@@ -60,20 +60,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _LZW2 = _interopRequireDefault(_LZW);
 	
-	var _util = __webpack_require__(2);
+	var _listeners = __webpack_require__(2);
+	
+	var _util = __webpack_require__(3);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; } /**
 	                                                                                                                                                                                                                              * Created by Ganapati on 5/14/17.
+	                                                                                                                                                                                                                              *
+	                                                                                                                                                                                                                              * flash-cache: Ultra fast in-memory cache.
 	                                                                                                                                                                                                                              */
 	
 	var _defaultConfig = {
 	    // Cache expiry time, 60000ms(60s) by default
 	    // Set `false` to disable expiry(This beats the purpose of cache).
-	    // `0` will be treated as `false`
+	    // `0` will be treated as `false`.
 	    expireIn: 60000,
-	    // Should compress the data if data is string, will save some bytes, but more processing
+	    // Should compress the data if data is string, will save some bytes, but more processing!
 	    compressStrings: true
 	};
 	
@@ -83,7 +87,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = function flashCache() {
 	    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _defaultConfig;
 	
-	    var _listeners = Object.create(null);
 	    var _cache = Object.create(null);
 	
 	    return {
@@ -128,7 +131,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                __cache__.value = _LZW2.default.compress(value);
 	            }
 	
-	            // Ignore both `0` & `false`
+	            // Ignore all falsy values(like `0` & `false`)
 	            // Basically if there is no expiry, cache will act as simple in-memory data store.
 	            if (expireIn) {
 	                // Store timeout, might be required for later use
@@ -136,8 +139,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                // Remove the cache after expiry time
 	                __cache__._expirer = setTimeout(function () {
-	                    // Trigger `expiry` event
-	                    _this.emit('expiry', { key: key, data: _cache[key] });
+	                    // Trigger `fc-expiry` event
+	                    _this.emit('fc-expiry', { key: key, data: _cache[key] });
 	
 	                    _this.remove(key, true);
 	                }, expireIn);
@@ -145,8 +148,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            _cache[key] = __cache__;
 	
-	            // Trigger `add` event
-	            this.emit('add', { key: key, data: _cache[key] });
+	            // Trigger `fc-add` event
+	            this.emit('fc-add', { key: key, data: _cache[key] });
 	
 	            return _cache[key];
 	        },
@@ -178,8 +181,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    cache.value = _LZW2.default.decompress(cache.value);
 	                }
 	
-	                // Trigger `get` event
-	                this.emit('get', { key: key, data: cache });
+	                // Trigger `fc-get` event
+	                this.emit('fc-get', { key: key, data: cache });
 	
 	                return cache;
 	            }
@@ -211,8 +214,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // Remove key & value from cache
 	                delete _cache[key];
 	
-	                // Trigger `remove` event
-	                this.emit('remove', { key: key, expired: isExpired });
+	                // Trigger `fc-remove` event
+	                this.emit('fc-remove', { key: key, expired: isExpired });
 	
 	                return true;
 	            }
@@ -227,56 +230,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	        clear: function clear() {
 	            _cache = Object.create(null);
 	
-	            // Trigger `clear` event
-	            this.emit('clear', {});
+	            // Trigger `fc-clear` event
+	            this.emit('fc-clear', {});
 	
 	            return true;
 	        },
 	
 	
 	        /**
-	         * Add cache event listener
-	         * Snippet borrowed from @developit/mitt
-	         *
-	         * @param {String} type  Event to register, Eg: add, remove, expiry
-	         * @param {String|Object} listener Function to be called on event
+	         * Event listeners
 	         * */
-	        on: function on(type, listener) {
-	            if (typeof listener === 'function') {
-	                (_listeners[type] || (_listeners[type] = [])).push(listener);
-	            }
-	        },
-	
-	
-	        /**
-	         * Remove cache event listener
-	         * Snippet borrowed from @developit/mitt
-	         *
-	         * @param {String} type  Event to un register, Eg: add, remove, expiry
-	         * @param {String|Object} listener function to remove
-	         * */
-	        off: function off(type, listener) {
-	            if (_listeners[type]) {
-	                _listeners[type].splice(_listeners[type].indexOf(listener) >>> 0, 1);
-	            }
-	        },
-	
-	
-	        /**
-	         * Emit data to cache event listeners
-	         * Snippet borrowed from @developit/mitt
-	         *
-	         * @param {String} type  Event to be emited
-	         * @param {String|Object} data to pass to listener function
-	         * */
-	        emit: function emit(type, data) {
-	            (_listeners[type] || []).map(function (handler) {
-	                handler(data);
-	            });
-	            (_listeners['*'] || []).map(function (handler) {
-	                handler(type, data);
-	            });
-	        }
+	        on: _listeners.on,
+	        off: _listeners.off,
+	        emit: _listeners.emit
 	    };
 	};
 
@@ -388,6 +354,67 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 2 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	/**
+	 * Created by Ganapati on 6/24/17.
+	 *
+	 * Event listeners
+	 */
+	
+	var _listeners = Object.create(null);
+	
+	/**
+	 * Add cache event listener
+	 * Snippet borrowed from @developit/mitt
+	 *
+	 * @param {String} type  Event to register, Eg: add, remove, expiry
+	 * @param {String|Object} listener Function to be called on event
+	 * */
+	var on = function on(type, listener) {
+	    if (typeof listener === 'function') {
+	        (_listeners[type] || (_listeners[type] = [])).push(listener);
+	    }
+	};
+	
+	/**
+	 * Remove cache event listener
+	 * Snippet borrowed from @developit/mitt
+	 *
+	 * @param {String} type  Event to un register, Eg: add, remove, expiry
+	 * @param {String|Object} listener function to remove
+	 * */
+	var off = function off(type, listener) {
+	    if (_listeners[type]) {
+	        _listeners[type].splice(_listeners[type].indexOf(listener) >>> 0, 1);
+	    }
+	};
+	
+	/**
+	 * Emit data to cache event listeners
+	 * Snippet borrowed from @developit/mitt
+	 *
+	 * @param {String} type  Event to be emited
+	 * @param {String|Object} data to pass to listener function
+	 * */
+	var emit = function emit(type, data) {
+	    (_listeners[type] || []).map(function (handler) {
+	        handler(data);
+	    });
+	    (_listeners['*'] || []).map(function (handler) {
+	        handler(type, data);
+	    });
+	};
+	
+	exports.default = { on: on, off: off, emit: emit };
+
+/***/ },
+/* 3 */
 /***/ function(module, exports) {
 
 	"use strict";

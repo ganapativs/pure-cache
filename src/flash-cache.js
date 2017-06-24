@@ -1,16 +1,19 @@
 /**
  * Created by Ganapati on 5/14/17.
+ *
+ * flash-cache: Ultra fast in-memory cache.
  */
 
 import LZW from './LZW';
+import {on, off, emit} from './listeners';
 import {isExisty} from './util';
 
 let _defaultConfig = {
     // Cache expiry time, 60000ms(60s) by default
     // Set `false` to disable expiry(This beats the purpose of cache).
-    // `0` will be treated as `false`
+    // `0` will be treated as `false`.
     expireIn: 60000,
-    // Should compress the data if data is string, will save some bytes, but more processing
+    // Should compress the data if data is string, will save some bytes, but more processing!
     compressStrings: true
 };
 
@@ -18,7 +21,6 @@ let _defaultConfig = {
  * flash-cache: Ultra fast in-memory cache.
  */
 module.exports = function flashCache(config = _defaultConfig) {
-    let _listeners = Object.create(null);
     let _cache = Object.create(null);
 
     return {
@@ -56,7 +58,7 @@ module.exports = function flashCache(config = _defaultConfig) {
                 __cache__.value = LZW.compress(value);
             }
 
-            // Ignore both `0` & `false`
+            // Ignore all falsy values(like `0` & `false`)
             // Basically if there is no expiry, cache will act as simple in-memory data store.
             if (expireIn) {
                 // Store timeout, might be required for later use
@@ -64,8 +66,8 @@ module.exports = function flashCache(config = _defaultConfig) {
 
                 // Remove the cache after expiry time
                 __cache__._expirer = setTimeout(() => {
-                    // Trigger `expiry` event
-                    this.emit('expiry', {key, data: _cache[key]});
+                    // Trigger `fc-expiry` event
+                    this.emit('fc-expiry', {key, data: _cache[key]});
 
                     this.remove(key, true);
                 }, expireIn);
@@ -73,8 +75,8 @@ module.exports = function flashCache(config = _defaultConfig) {
 
             _cache[key] = __cache__;
 
-            // Trigger `add` event
-            this.emit('add', {key, data: _cache[key]});
+            // Trigger `fc-add` event
+            this.emit('fc-add', {key, data: _cache[key]});
 
             return _cache[key];
         },
@@ -99,8 +101,8 @@ module.exports = function flashCache(config = _defaultConfig) {
                     cache.value = LZW.decompress(cache.value);
                 }
 
-                // Trigger `get` event
-                this.emit('get', {key, data: cache});
+                // Trigger `fc-get` event
+                this.emit('fc-get', {key, data: cache});
 
                 return cache;
             }
@@ -128,8 +130,8 @@ module.exports = function flashCache(config = _defaultConfig) {
                 // Remove key & value from cache
                 delete _cache[key];
 
-                // Trigger `remove` event
-                this.emit('remove', {key, expired: isExpired});
+                // Trigger `fc-remove` event
+                this.emit('fc-remove', {key, expired: isExpired});
 
                 return true;
             }
@@ -143,52 +145,17 @@ module.exports = function flashCache(config = _defaultConfig) {
         clear() {
             _cache = Object.create(null);
 
-            // Trigger `clear` event
-            this.emit('clear', {});
+            // Trigger `fc-clear` event
+            this.emit('fc-clear', {});
 
             return true;
         },
 
         /**
-         * Add cache event listener
-         * Snippet borrowed from @developit/mitt
-         *
-         * @param {String} type  Event to register, Eg: add, remove, expiry
-         * @param {String|Object} listener Function to be called on event
+         * Event listeners
          * */
-        on(type, listener) {
-            if (typeof listener === 'function') {
-                (_listeners[type] || (_listeners[type] = [])).push(listener);
-            }
-        },
-
-        /**
-         * Remove cache event listener
-         * Snippet borrowed from @developit/mitt
-         *
-         * @param {String} type  Event to un register, Eg: add, remove, expiry
-         * @param {String|Object} listener function to remove
-         * */
-        off(type, listener) {
-            if (_listeners[type]) {
-                _listeners[type].splice(_listeners[type].indexOf(listener) >>> 0, 1);
-            }
-        },
-
-        /**
-         * Emit data to cache event listeners
-         * Snippet borrowed from @developit/mitt
-         *
-         * @param {String} type  Event to be emited
-         * @param {String|Object} data to pass to listener function
-         * */
-        emit(type, data) {
-            (_listeners[type] || []).map((handler) => {
-                handler(data);
-            });
-            (_listeners['*'] || []).map((handler) => {
-                handler(type, data);
-            });
-        }
+        on,
+        off,
+        emit
     }
 };

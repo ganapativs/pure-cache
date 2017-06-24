@@ -4,7 +4,7 @@ Ultra fast data caching for node & browser ⚡
 
 ### Todo:
 - Write doc, for now checkout src
-- Write test cases & coverage
+- Reduce number of setTimeout instances
 
 [![Travis build status](http://img.shields.io/travis/ganapativs/flash-cache.svg?style=flat)](https://travis-ci.org/ganapativs/flash-cache)
 [![Dependency Status](https://david-dm.org/ganapativs/flash-cache.svg)](https://david-dm.org/ganapativs/flash-cache)

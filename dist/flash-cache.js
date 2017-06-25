@@ -91,11 +91,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    return {
 	        /**
-	         * Expose cache, useful to get entire cache
-	         * */
-	        _cache: _cache,
-	
-	        /**
 	         * Expose config copy for future use
 	         * */
 	        _config: Object.assign({}, config),
@@ -225,9 +220,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	
 	        /**
+	         * Get entire cache
+	         * */
+	        getAll: function getAll() {
+	            // Trigger `fc-get-all` event
+	            this.emit('fc-get-all', _cache);
+	
+	            return _cache;
+	        },
+	
+	
+	        /**
 	         * Clear entire cache
 	         * */
-	        clear: function clear() {
+	        clearAll: function clearAll() {
 	            _cache = Object.create(null);
 	
 	            // Trigger `fc-clear` event

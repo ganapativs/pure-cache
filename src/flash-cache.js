@@ -25,11 +25,6 @@ module.exports = function flashCache(config = _defaultConfig) {
 
     return {
         /**
-         * Expose cache, useful to get entire cache
-         * */
-        _cache,
-
-        /**
          * Expose config copy for future use
          * */
         _config: Object.assign({}, config),
@@ -140,9 +135,19 @@ module.exports = function flashCache(config = _defaultConfig) {
         },
 
         /**
+         * Get entire cache
+         * */
+        getAll() {
+            // Trigger `fc-get-all` event
+            this.emit('fc-get-all', _cache);
+
+            return _cache;
+        },
+
+        /**
          * Clear entire cache
          * */
-        clear() {
+        clearAll() {
             _cache = Object.create(null);
 
             // Trigger `fc-clear` event

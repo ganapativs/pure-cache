@@ -51,6 +51,7 @@ let _checkExpired = () => {
 
     if (!remainingExpiries) {
         clearInterval(_expiryTimerInstance);
+        _expiryTimerInstance = null;
     }
     else if (!isTimerActive) {
         _expiryTimerInstance = setInterval(_checkExpired, 1);
@@ -66,6 +67,12 @@ let _addToExpiryQueue = (expiryAt, key, expiryFn) => {
     }
     _timers[expiryAt][key] = expiryFn;
     _checkExpired();
+};
+
+export let deleteTimerAtKey = (expiryAt, key) => {
+    if (_timers[expiryAt][key]) {
+        delete _timers[expiryAt][key];
+    }
 };
 
 export default _addToExpiryQueue;

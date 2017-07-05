@@ -6,7 +6,7 @@
 
 import LZW from './LZW';
 import {on, off, emit} from './listeners';
-import addToExpiryQueue from './addToExpiryQueue';
+import addToExpiryQueue, {deleteTimerAtKey} from './addToExpiryQueue';
 
 let _defaultConfig = {
     // Default cache expiry time, 60000ms(60s) by default.
@@ -121,9 +121,7 @@ module.exports = function flashCache(config = _defaultConfig) {
                 let {expiryAt} = __cache__;
 
                 // If timer exists for the key, remove it
-                if (_timers[expiryAt][key]) {
-                    delete _timers[expiryAt][key];
-                }
+                deleteTimerAtKey(expiryAt, key);
 
                 // Remove key & value from cache
                 delete _cache[key];

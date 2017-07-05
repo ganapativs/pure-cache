@@ -208,9 +208,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                // If timer exists for the key, remove it
 	
-	                if (_timers[expiryAt][key]) {
-	                    delete _timers[expiryAt][key];
-	                }
+	                (0, _addToExpiryQueue.deleteTimerAtKey)(expiryAt, key);
 	
 	                // Remove key & value from cache
 	                delete _cache[key];
@@ -487,6 +485,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    if (!remainingExpiries) {
 	        clearInterval(_expiryTimerInstance);
+	        _expiryTimerInstance = null;
 	    } else if (!isTimerActive) {
 	        _expiryTimerInstance = setInterval(_checkExpired, 1);
 	    }
@@ -501,6 +500,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    _timers[expiryAt][key] = expiryFn;
 	    _checkExpired();
+	};
+	
+	var deleteTimerAtKey = exports.deleteTimerAtKey = function deleteTimerAtKey(expiryAt, key) {
+	    if (_timers[expiryAt][key]) {
+	        delete _timers[expiryAt][key];
+	    }
 	};
 	
 	exports.default = _addToExpiryQueue;

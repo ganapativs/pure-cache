@@ -13,7 +13,7 @@ let _listeners = Object.create(null);
  * @param {String} type  Event to register, Eg: add, remove, expiry
  * @param {String|Object} listener Function to be called on event
  * */
-let on = (type, listener) => {
+export let on = (type, listener) => {
     if (typeof listener === 'function') {
         (_listeners[type] || (_listeners[type] = [])).push(listener);
     }
@@ -26,7 +26,7 @@ let on = (type, listener) => {
  * @param {String} type  Event to un register, Eg: add, remove, expiry
  * @param {String|Object} listener function to remove
  * */
-let off = (type, listener) => {
+export let off = (type, listener) => {
     if (_listeners[type]) {
         _listeners[type].splice(_listeners[type].indexOf(listener) >>> 0, 1);
     }
@@ -39,7 +39,7 @@ let off = (type, listener) => {
  * @param {String} type  Event to be emited
  * @param {String|Object} data to pass to listener function
  * */
-let emit = (type, data) => {
+export let emit = (type, data) => {
     (_listeners[type] || []).map((handler) => {
         handler(data);
     });
@@ -47,5 +47,3 @@ let emit = (type, data) => {
         handler(type, data);
     });
 };
-
-export default {on, off, emit};

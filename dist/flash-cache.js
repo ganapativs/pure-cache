@@ -62,7 +62,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _listeners = __webpack_require__(2);
 	
-	var _util = __webpack_require__(3);
+	var _addToExpiryQueue = __webpack_require__(3);
+	
+	var _addToExpiryQueue2 = _interopRequireDefault(_addToExpiryQueue);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -73,10 +75,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                                                                                                                                                                                                              */
 	
 	var _defaultConfig = {
-	    // Cache expiry time, 60000ms(60s) by default
+	    // Default cache expiry time, 60000ms(60s) by default.
 	    // Set `false` to disable expiry(This beats the purpose of cache).
 	    // `0` will be treated as `false`.
-	    expireIn: 60000,
+	    defaultExpiryIn: 60000,
 	    // Should compress the data if data is string, will save some bytes, but more processing!
 	    compressStrings: true
 	};
@@ -100,12 +102,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	         *
 	         * @param {String} key  Cache key
 	         * @param {String|Object} value Value to be stored against cache key
+	         * @param {Number} expiryIn Expiry time for the key, defaults to defaultExpiryIn
 	         * */
 	        put: function put() {
+	            var key = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+	
 	            var _this = this;
 	
-	            var key = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 	            var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+	            var expiryIn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _defaultConfig.defaultExpiryIn;
 	
 	            // Remove existing values, if any
 	            if (_cache[key]) {
@@ -116,8 +121,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                value: value,
 	                time: Date.now()
 	            };
-	            var compressStrings = config.compressStrings,
-	                expireIn = config.expireIn;
+	            var compressStrings = config.compressStrings;
 	
 	            // Compress and store strings
 	
@@ -128,17 +132,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            // Ignore all falsy values(like `0` & `false`)
 	            // Basically if there is no expiry, cache will act as simple in-memory data store.
-	            if (expireIn) {
+	            if (expiryIn) {
 	                // Store timeout, might be required for later use
-	                __cache__.expiryAt = __cache__.time + expireIn;
+	                __cache__.expiryAt = __cache__.time + expiryIn;
 	
-	                // Remove the cache after expiry time
-	                __cache__._expirer = setTimeout(function () {
+	                var expiryFn = function expiryFn() {
 	                    // Trigger `fc-expiry` event
 	                    _this.emit('fc-expiry', { key: key, data: _cache[key] });
 	
 	                    _this.remove(key, true);
-	                }, expireIn);
+	                };
+	
+	                // Remove the cache after expiry time
+	                (0, _addToExpiryQueue2.default)(__cache__.expiryAt, key, expiryFn.bind(this));
 	            }
 	
 	            _cache[key] = __cache__;
@@ -198,12 +204,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var __cache__ = _cache[key];
 	
 	            if (__cache__) {
-	                var _expirer = __cache__._expirer;
+	                var expiryAt = __cache__.expiryAt;
 	
-	                // If expirer exists, clear it
+	                // If timer exists for the key, remove it
 	
-	                if ((0, _util.isExisty)(_expirer)) {
-	                    clearTimeout(_expirer);
+	                if (_timers[expiryAt][key]) {
+	                    delete _timers[expiryAt][key];
 	                }
 	
 	                // Remove key & value from cache
@@ -382,7 +388,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {String} type  Event to register, Eg: add, remove, expiry
 	 * @param {String|Object} listener Function to be called on event
 	 * */
-	var on = function on(type, listener) {
+	var on = exports.on = function on(type, listener) {
 	    if (typeof listener === 'function') {
 	        (_listeners[type] || (_listeners[type] = [])).push(listener);
 	    }
@@ -395,7 +401,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {String} type  Event to un register, Eg: add, remove, expiry
 	 * @param {String|Object} listener function to remove
 	 * */
-	var off = function off(type, listener) {
+	var off = exports.off = function off(type, listener) {
 	    if (_listeners[type]) {
 	        _listeners[type].splice(_listeners[type].indexOf(listener) >>> 0, 1);
 	    }
@@ -408,7 +414,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {String} type  Event to be emited
 	 * @param {String|Object} data to pass to listener function
 	 * */
-	var emit = function emit(type, data) {
+	var emit = exports.emit = function emit(type, data) {
 	    (_listeners[type] || []).map(function (handler) {
 	        handler(data);
 	    });
@@ -416,8 +422,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        handler(type, data);
 	    });
 	};
-	
-	exports.default = { on: on, off: off, emit: emit };
 
 /***/ },
 /* 3 */
@@ -426,18 +430,80 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 	/**
-	 * Created by Ganapati on 5/14/17.
+	 * Created by Ganapati on 7/05/17.
+	 *
+	 * Timers - Expire cache on time(on regular intervals)
 	 */
 	
 	/**
 	 * Check if variable has some value
 	 * */
-	var isExisty = exports.isExisty = function isExisty(val) {
-	  return val !== null && val !== undefined;
+	var isExisty = function isExisty(val) {
+	    return val !== null && val !== undefined;
 	};
+	
+	/**
+	 * Store each key's expiry functions in _timers[expiryAt][key]
+	 * */
+	var _timers = {};
+	var _expiryTimerInstance = null;
+	
+	/**
+	 * Expire all keys at time(key) - _timers[time] & remove key from _timers
+	 * */
+	var _cleanUpTimers = function _cleanUpTimers(key) {
+	    if (_timers[key]) {
+	        for (var k in _timers[key]) {
+	            if (_timers[key].hasOwnProperty(k)) {
+	                _timers[key][k]();
+	            }
+	        }
+	        delete _timers[key];
+	    }
+	};
+	
+	/**
+	 * Check for keys expiry each 1 millisecond unless all keys are expired.
+	 *
+	 * Cleanup current + old keys(If any)
+	 *
+	 * If no keys exists to expire, stop timer or if timer is not started, attach timer.
+	 * */
+	var _checkExpired = function _checkExpired() {
+	    var keys = Object.keys(_timers);
+	    var remainingExpiries = keys.length;
+	    var now = Date.now();
+	    var isTimerActive = isExisty(_expiryTimerInstance);
+	
+	    keys.map(function (k) {
+	        if (k <= now) {
+	            _cleanUpTimers(k);
+	            remainingExpiries -= 1;
+	        }
+	    });
+	
+	    if (!remainingExpiries) {
+	        clearInterval(_expiryTimerInstance);
+	    } else if (!isTimerActive) {
+	        _expiryTimerInstance = setInterval(_checkExpired, 1);
+	    }
+	};
+	
+	/**
+	 * Add expiryFn to _timers[expiryAt][key] & start timer if timer not attached
+	 * */
+	var _addToExpiryQueue = function _addToExpiryQueue(expiryAt, key, expiryFn) {
+	    if (!_timers[expiryAt]) {
+	        _timers[expiryAt] = {};
+	    }
+	    _timers[expiryAt][key] = expiryFn;
+	    _checkExpired();
+	};
+	
+	exports.default = _addToExpiryQueue;
 
 /***/ }
 /******/ ])

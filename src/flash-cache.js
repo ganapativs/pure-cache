@@ -6,13 +6,13 @@
 
 import LZW from './LZW';
 import {on, off, emit} from './listeners';
-import {isExisty} from './util';
+import addToExpiryQueue from './addToExpiryQueue';
 
 let _defaultConfig = {
-    // Cache expiry time, 60000ms(60s) by default
+    // Default cache expiry time, 60000ms(60s) by default.
     // Set `false` to disable expiry(This beats the purpose of cache).
     // `0` will be treated as `false`.
-    expireIn: 60000,
+    defaultExpiryIn: 60000,
     // Should compress the data if data is string, will save some bytes, but more processing!
     compressStrings: true
 };
@@ -34,8 +34,9 @@ module.exports = function flashCache(config = _defaultConfig) {
          *
          * @param {String} key  Cache key
          * @param {String|Object} value Value to be stored against cache key
+         * @param {Number} expiryIn Expiry time for the key, defaults to defaultExpiryIn
          * */
-        put(key = '', value = '') {
+        put(key = '', value = '', expiryIn = _defaultConfig.defaultExpiryIn) {
             // Remove existing values, if any
             if (_cache[key]) {
                 this.remove(key, true);
@@ -45,7 +46,7 @@ module.exports = function flashCache(config = _defaultConfig) {
                 value,
                 time: Date.now()
             };
-            let {compressStrings, expireIn} = config;
+            let {compressStrings} = config;
 
             // Compress and store strings
             if (compressStrings && typeof value === 'string') {
@@ -55,17 +56,19 @@ module.exports = function flashCache(config = _defaultConfig) {
 
             // Ignore all falsy values(like `0` & `false`)
             // Basically if there is no expiry, cache will act as simple in-memory data store.
-            if (expireIn) {
+            if (expiryIn) {
                 // Store timeout, might be required for later use
-                __cache__.expiryAt = __cache__.time + expireIn;
+                __cache__.expiryAt = __cache__.time + expiryIn;
 
-                // Remove the cache after expiry time
-                __cache__._expirer = setTimeout(() => {
+                let expiryFn = () => {
                     // Trigger `fc-expiry` event
                     this.emit('fc-expiry', {key, data: _cache[key]});
 
                     this.remove(key, true);
-                }, expireIn);
+                };
+
+                // Remove the cache after expiry time
+                addToExpiryQueue(__cache__.expiryAt, key, expiryFn.bind(this));
             }
 
             _cache[key] = __cache__;
@@ -115,11 +118,11 @@ module.exports = function flashCache(config = _defaultConfig) {
             let __cache__ = _cache[key];
 
             if (__cache__) {
-                let {_expirer} = __cache__;
+                let {expiryAt} = __cache__;
 
-                // If expirer exists, clear it
-                if (isExisty(_expirer)) {
-                    clearTimeout(_expirer);
+                // If timer exists for the key, remove it
+                if (_timers[expiryAt][key]) {
+                    delete _timers[expiryAt][key];
                 }
 
                 // Remove key & value from cache

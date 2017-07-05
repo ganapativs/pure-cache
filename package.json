@@ -1,6 +1,6 @@
 {
   "name": "flash-cache",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Ultra fast data caching for node & browser ⚡",
   "main": "dist/flash-cache.js",
   "scripts": {

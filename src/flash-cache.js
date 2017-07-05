@@ -1,24 +1,21 @@
 /**
- * Created by Ganapati on 5/14/17.
+ * Created by Ganapati on 5/14/17
  *
- * flash-cache: Ultra fast in-memory cache.
+ * flash-cache: Ultra fast in-memory cache
  */
 
-import LZW from './LZW';
 import {on, off, emit} from './listeners';
 import addToExpiryQueue, {deleteTimerAtKey} from './addToExpiryQueue';
 
 let _defaultConfig = {
-    // Default cache expiry time, 60000ms(60s) by default.
-    // Set `false` to disable expiry(This beats the purpose of cache).
-    // `0` will be treated as `false`.
-    defaultExpiryIn: 60000,
-    // Should compress the data if data is string, will save some bytes, but more processing!
-    compressStrings: true
+    // Default cache expiry time, 60000ms(60s) by default
+    // Set `false` to disable expiry(This beats the purpose of cache)
+    // `0` will be treated as `false`
+    defaultExpiryIn: 60000
 };
 
 /**
- * flash-cache: Ultra fast in-memory cache.
+ * flash-cache: Ultra fast in-memory cache
  */
 module.exports = function flashCache(config = _defaultConfig) {
     let _cache = Object.create(null);
@@ -36,8 +33,8 @@ module.exports = function flashCache(config = _defaultConfig) {
          * @param {String|Object} value Value to be stored against cache key
          * @param {Number} expiryIn Expiry time for the key, defaults to defaultExpiryIn
          * */
-        put(key = '', value = '', expiryIn = _defaultConfig.defaultExpiryIn) {
-            // Remove existing values, if any
+        put(key = '', value = '', expiryIn = config.defaultExpiryIn) {
+            // Remove existing values in the key, if any
             if (_cache[key]) {
                 this.remove(key, true);
             }
@@ -46,16 +43,11 @@ module.exports = function flashCache(config = _defaultConfig) {
                 value,
                 time: Date.now()
             };
-            let {compressStrings} = config;
 
-            // Compress and store strings
-            if (compressStrings && typeof value === 'string') {
-                __cache__._compressed = true;
-                __cache__.value = LZW.compress(value);
-            }
+            __cache__.value = value;
 
             // Ignore all falsy values(like `0` & `false`)
-            // Basically if there is no expiry, cache will act as simple in-memory data store.
+            // Basically if there is no expiry, cache will act as simple in-memory data store
             if (expiryIn) {
                 // Store timeout, might be required for later use
                 __cache__.expiryAt = __cache__.time + expiryIn;
@@ -88,21 +80,14 @@ module.exports = function flashCache(config = _defaultConfig) {
             let __cache__ = _cache[key];
 
             if (__cache__) {
-                // Extract private _compressed, _expirer function
-                let {_expirer, _compressed, ...cache} = __cache__;
-
-                // Make copy of cache
-                cache = Object.assign({}, cache);
-
-                // If data is compressed string, uncompress
-                if (_compressed) {
-                    cache.value = LZW.decompress(cache.value);
-                }
+                // Make a new copy of cache
+                // Note: this won't remove nested references
+                let nCache = Object.assign({}, __cache__);
 
                 // Trigger `fc-get` event
-                this.emit('fc-get', {key, data: cache});
+                this.emit('fc-get', {key, data: nCache});
 
-                return cache;
+                return nCache;
             }
 
             return null;

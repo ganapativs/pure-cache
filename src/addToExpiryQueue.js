@@ -1,5 +1,5 @@
 /**
- * Created by Ganapati on 7/05/17.
+ * Created by Ganapati on 7/05/17
  *
  * Timers - Expire cache on time(on regular intervals)
  */
@@ -30,11 +30,11 @@ let _cleanUpTimers = (key) => {
 };
 
 /**
- * Check for keys expiry each 1 millisecond unless all keys are expired.
+ * Check for keys expiry each 1 millisecond unless all keys are expired
  *
  * Cleanup current + old keys(If any)
  *
- * If no keys exists to expire, stop timer or if timer is not started, attach timer.
+ * If no keys exists to expire, stop timer or if timer is not started, attach timer
  * */
 let _checkExpired = () => {
     let keys = Object.keys(_timers);

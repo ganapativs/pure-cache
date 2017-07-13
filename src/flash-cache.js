@@ -5,6 +5,7 @@
  */
 
 import {on, off, emit} from './listeners';
+import Events from './events';
 import addToExpiryQueue, {deleteTimerAtKey} from './addToExpiryQueue';
 
 let _defaultConfig = {
@@ -22,9 +23,16 @@ module.exports = function flashCache(config = _defaultConfig) {
 
     return {
         /**
-         * Expose config copy for future use
+         * Remove value from cache and trigger expiry event
+         *
+         * Exposing here to prevent creation of multiple function instances
          * */
-        _config: Object.assign({}, config),
+        _expiryFn(key, data) {
+            // Trigger `FC_EXPIRY` event
+            this.emit(Events.FC_EXPIRY, {key, data});
+
+            this.remove(key, true);
+        },
 
         /**
          * Put data into cache
@@ -51,22 +59,18 @@ module.exports = function flashCache(config = _defaultConfig) {
             if (expiryIn) {
                 // Store timeout, might be required for later use
                 __cache__.expiryAt = __cache__.time + expiryIn;
-
-                let expiryFn = () => {
-                    // Trigger `fc-expiry` event
-                    this.emit('fc-expiry', {key, data: _cache[key]});
-
-                    this.remove(key, true);
-                };
-
-                // Remove the cache after expiry time
-                addToExpiryQueue(__cache__.expiryAt, key, expiryFn.bind(this));
             }
 
             _cache[key] = __cache__;
 
-            // Trigger `fc-add` event
-            this.emit('fc-add', {key, data: _cache[key]});
+            // If expiry time exists, add to expiry queue
+            if (__cache__.expiryAt) {
+                // Remove the cache after expiry time
+                addToExpiryQueue(__cache__.expiryAt, key, this._expiryFn.bind(this, key, _cache[key]));
+            }
+
+            // Trigger `FC_ADD` event
+            this.emit(Events.FC_ADD, {key, data: _cache[key]});
 
             return _cache[key];
         },
@@ -84,8 +88,8 @@ module.exports = function flashCache(config = _defaultConfig) {
                 // Note: this won't remove nested references
                 let nCache = Object.assign({}, __cache__);
 
-                // Trigger `fc-get` event
-                this.emit('fc-get', {key, data: nCache});
+                // Trigger `FC_GET` event
+                this.emit(Events.FC_GET, {key, data: nCache});
 
                 return nCache;
             }
@@ -111,8 +115,8 @@ module.exports = function flashCache(config = _defaultConfig) {
                 // Remove key & value from cache
                 delete _cache[key];
 
-                // Trigger `fc-remove` event
-                this.emit('fc-remove', {key, expired: isExpired});
+                // Trigger `FC_REMOVE` event
+                this.emit(Events.FC_REMOVE, {key, expired: isExpired});
 
                 return true;
             }
@@ -121,11 +125,18 @@ module.exports = function flashCache(config = _defaultConfig) {
         },
 
         /**
+         * Get current cache configuration
+         * */
+        getConfig() {
+            return Object.assign({}, config);
+        },
+
+        /**
          * Get entire cache
          * */
         getAll() {
-            // Trigger `fc-get-all` event
-            this.emit('fc-get-all', _cache);
+            // Trigger `FC_GET_ALL` event
+            this.emit(Events.FC_GET_ALL, _cache);
 
             return _cache;
         },
@@ -136,8 +147,8 @@ module.exports = function flashCache(config = _defaultConfig) {
         clearAll() {
             _cache = Object.create(null);
 
-            // Trigger `fc-clear` event
-            this.emit('fc-clear', {});
+            // Trigger `FC_CLEAR` event
+            this.emit(Events.FC_CLEAR, {});
 
             return true;
         },

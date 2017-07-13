@@ -58,17 +58,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _listeners = __webpack_require__(1);
 	
-	var _addToExpiryQueue = __webpack_require__(2);
+	var _events = __webpack_require__(2);
+	
+	var _events2 = _interopRequireDefault(_events);
+	
+	var _addToExpiryQueue = __webpack_require__(3);
 	
 	var _addToExpiryQueue2 = _interopRequireDefault(_addToExpiryQueue);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	/**
-	 * Created by Ganapati on 5/14/17
-	 *
-	 * flash-cache: Ultra fast in-memory cache
-	 */
 	
 	var _defaultConfig = {
 	    // Default cache expiry time, 60000ms(60s) by default
@@ -80,6 +78,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * flash-cache: Ultra fast in-memory cache
 	 */
+	/**
+	 * Created by Ganapati on 5/14/17
+	 *
+	 * flash-cache: Ultra fast in-memory cache
+	 */
+	
 	module.exports = function flashCache() {
 	    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _defaultConfig;
 	
@@ -87,9 +91,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    return {
 	        /**
-	         * Expose config copy for future use
+	         * Remove value from cache and trigger expiry event
+	         *
+	         * Exposing here to prevent creation of multiple function instances
 	         * */
-	        _config: Object.assign({}, config),
+	        _expiryFn: function _expiryFn(key, data) {
+	            // Trigger `FC_EXPIRY` event
+	            this.emit(_events2.default.FC_EXPIRY, { key: key, data: data });
+	
+	            this.remove(key, true);
+	        },
+	
 	
 	        /**
 	         * Put data into cache
@@ -100,9 +112,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	         * */
 	        put: function put() {
 	            var key = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-	
-	            var _this = this;
-	
 	            var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 	            var expiryIn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : config.defaultExpiryIn;
 	
@@ -123,22 +132,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (expiryIn) {
 	                // Store timeout, might be required for later use
 	                __cache__.expiryAt = __cache__.time + expiryIn;
-	
-	                var expiryFn = function expiryFn() {
-	                    // Trigger `fc-expiry` event
-	                    _this.emit('fc-expiry', { key: key, data: _cache[key] });
-	
-	                    _this.remove(key, true);
-	                };
-	
-	                // Remove the cache after expiry time
-	                (0, _addToExpiryQueue2.default)(__cache__.expiryAt, key, expiryFn.bind(this));
 	            }
 	
 	            _cache[key] = __cache__;
 	
-	            // Trigger `fc-add` event
-	            this.emit('fc-add', { key: key, data: _cache[key] });
+	            // If expiry time exists, add to expiry queue
+	            if (__cache__.expiryAt) {
+	                // Remove the cache after expiry time
+	                (0, _addToExpiryQueue2.default)(__cache__.expiryAt, key, this._expiryFn.bind(this, key, _cache[key]));
+	            }
+	
+	            // Trigger `FC_ADD` event
+	            this.emit(_events2.default.FC_ADD, { key: key, data: _cache[key] });
 	
 	            return _cache[key];
 	        },
@@ -159,8 +164,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // Note: this won't remove nested references
 	                var nCache = Object.assign({}, __cache__);
 	
-	                // Trigger `fc-get` event
-	                this.emit('fc-get', { key: key, data: nCache });
+	                // Trigger `FC_GET` event
+	                this.emit(_events2.default.FC_GET, { key: key, data: nCache });
 	
 	                return nCache;
 	            }
@@ -190,8 +195,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // Remove key & value from cache
 	                delete _cache[key];
 	
-	                // Trigger `fc-remove` event
-	                this.emit('fc-remove', { key: key, expired: isExpired });
+	                // Trigger `FC_REMOVE` event
+	                this.emit(_events2.default.FC_REMOVE, { key: key, expired: isExpired });
 	
 	                return true;
 	            }
@@ -201,11 +206,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	
 	        /**
+	         * Get current cache configuration
+	         * */
+	        getConfig: function getConfig() {
+	            return Object.assign({}, config);
+	        },
+	
+	
+	        /**
 	         * Get entire cache
 	         * */
 	        getAll: function getAll() {
-	            // Trigger `fc-get-all` event
-	            this.emit('fc-get-all', _cache);
+	            // Trigger `FC_GET_ALL` event
+	            this.emit(_events2.default.FC_GET_ALL, _cache);
 	
 	            return _cache;
 	        },
@@ -217,8 +230,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        clearAll: function clearAll() {
 	            _cache = Object.create(null);
 	
-	            // Trigger `fc-clear` event
-	            this.emit('fc-clear', {});
+	            // Trigger `FC_CLEAR` event
+	            this.emit(_events2.default.FC_CLEAR, {});
 	
 	            return true;
 	        },
@@ -294,6 +307,32 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 2 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	/**
+	 * Created by guns on 13/07/17.
+	 *
+	 * All events triggered
+	 */
+	
+	var Events = {
+	    FC_EXPIRY: 'fc-expiry',
+	    FC_ADD: 'fc-add',
+	    FC_GET: 'fc-get',
+	    FC_GET_ALL: 'fc-get-all',
+	    FC_REMOVE: 'fc-remove',
+	    FC_CLEAR: 'fc-clear'
+	};
+	
+	exports.default = Events;
+
+/***/ },
+/* 3 */
 /***/ function(module, exports) {
 
 	"use strict";

@@ -1,427 +1,236 @@
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else if(typeof exports === 'object')
-		exports["flashCache"] = factory();
-	else
-		root["flashCache"] = factory();
-})(this, function() {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
-/******/ 			return installedModules[moduleId].exports;
-/******/
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			exports: {},
-/******/ 			id: moduleId,
-/******/ 			loaded: false
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.loaded = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ function(module, exports, __webpack_require__) {
+(function (global, factory) {
+  if (typeof define === "function" && define.amd) {
+    define(["exports", "@babel/runtime/core-js/object/keys", "@babel/runtime/helpers/extends", "@babel/runtime/helpers/classCallCheck", "@babel/runtime/helpers/createClass", "mitt", "./constants/events", "./expirer", "./utils/newObjectReference"], factory);
+  } else if (typeof exports !== "undefined") {
+    factory(exports, require("@babel/runtime/core-js/object/keys"), require("@babel/runtime/helpers/extends"), require("@babel/runtime/helpers/classCallCheck"), require("@babel/runtime/helpers/createClass"), require("mitt"), require("./constants/events"), require("./expirer"), require("./utils/newObjectReference"));
+  } else {
+    var mod = {
+      exports: {}
+    };
+    factory(mod.exports, global.keys, global._extends, global.classCallCheck, global.createClass, global.mitt, global.events, global.expirer, global.newObjectReference);
+    global.flashCache = mod.exports;
+  }
+})(this, function (_exports, _keys, _extends2, _classCallCheck2, _createClass2, _mitt, _events, _expirer, _newObjectReference) {
+  "use strict";
 
-	'use strict';
-	
-	var _listeners = __webpack_require__(1);
-	
-	var _events = __webpack_require__(2);
-	
-	var _events2 = _interopRequireDefault(_events);
-	
-	var _addToExpiryQueue = __webpack_require__(3);
-	
-	var _addToExpiryQueue2 = _interopRequireDefault(_addToExpiryQueue);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var _defaultConfig = {
-	    // Default cache expiry time, 60000ms(60s) by default
-	    // Set `false` to disable expiry(This beats the purpose of cache)
-	    // `0` will be treated as `false`
-	    defaultExpiryIn: 60000
-	};
-	
-	/**
-	 * flash-cache: Ultra fast in-memory cache
-	 */
-	/**
-	 * Created by Ganapati on 5/14/17
-	 *
-	 * flash-cache: Ultra fast in-memory cache
-	 */
-	
-	module.exports = function flashCache() {
-	    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _defaultConfig;
-	
-	    var _cache = Object.create(null);
-	
-	    return {
-	        /**
-	         * Remove value from cache and trigger expiry event
-	         *
-	         * Exposing here to prevent creation of multiple function instances
-	         * */
-	        _expiryFn: function _expiryFn(key, data) {
-	            // Trigger `FC_EXPIRY` event
-	            this.emit(_events2.default.FC_EXPIRY, { key: key, data: data });
-	
-	            this.remove(key, true);
-	        },
-	
-	
-	        /**
-	         * Put data into cache
-	         *
-	         * @param {String} key  Cache key
-	         * @param {String|Object} value Value to be stored against cache key
-	         * @param {Number} expiryIn Expiry time for the key, defaults to defaultExpiryIn
-	         * */
-	        put: function put() {
-	            var key = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-	            var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-	            var expiryIn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : config.defaultExpiryIn;
-	
-	            // Remove existing values in the key, if any
-	            if (_cache[key]) {
-	                this.remove(key, true);
-	            }
-	
-	            var __cache__ = {
-	                value: value,
-	                time: Date.now()
-	            };
-	
-	            __cache__.value = value;
-	
-	            // Ignore all falsy values(like `0` & `false`)
-	            // Basically if there is no expiry, cache will act as simple in-memory data store
-	            if (expiryIn) {
-	                // Store timeout, might be required for later use
-	                __cache__.expiryAt = __cache__.time + expiryIn;
-	            }
-	
-	            _cache[key] = __cache__;
-	
-	            // If expiry time exists, add to expiry queue
-	            if (__cache__.expiryAt) {
-	                // Remove the cache after expiry time
-	                (0, _addToExpiryQueue2.default)(__cache__.expiryAt, key, this._expiryFn.bind(this, key, _cache[key]));
-	            }
-	
-	            // Trigger `FC_ADD` event
-	            this.emit(_events2.default.FC_ADD, { key: key, data: _cache[key] });
-	
-	            return _cache[key];
-	        },
-	
-	
-	        /**
-	         * Get data from cache
-	         *
-	         * @param {String} key  Cache key
-	         * */
-	        get: function get() {
-	            var key = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-	
-	            var __cache__ = _cache[key];
-	
-	            if (__cache__) {
-	                // Make a new copy of cache
-	                // Note: this won't remove nested references
-	                var nCache = Object.assign({}, __cache__);
-	
-	                // Trigger `FC_GET` event
-	                this.emit(_events2.default.FC_GET, { key: key, data: nCache });
-	
-	                return nCache;
-	            }
-	
-	            return null;
-	        },
-	
-	
-	        /**
-	         * Remove data/Invalidate from cache
-	         *
-	         * @param {String} key  Cache key to be removed
-	         * @param {Boolean} isExpired  Boolean to indicate whether cache is removed by expiry timeout
-	         * */
-	        remove: function remove(key) {
-	            var isExpired = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-	
-	            var __cache__ = _cache[key];
-	
-	            if (__cache__) {
-	                var expiryAt = __cache__.expiryAt;
-	
-	                // If timer exists for the key, remove it
-	
-	                (0, _addToExpiryQueue.deleteTimerAtKey)(expiryAt, key);
-	
-	                // Remove key & value from cache
-	                delete _cache[key];
-	
-	                // Trigger `FC_REMOVE` event
-	                this.emit(_events2.default.FC_REMOVE, { key: key, expired: isExpired });
-	
-	                return true;
-	            }
-	
-	            return false;
-	        },
-	
-	
-	        /**
-	         * Get current cache configuration
-	         * */
-	        getConfig: function getConfig() {
-	            return Object.assign({}, config);
-	        },
-	
-	
-	        /**
-	         * Get entire cache
-	         * */
-	        getAll: function getAll() {
-	            // Trigger `FC_GET_ALL` event
-	            this.emit(_events2.default.FC_GET_ALL, _cache);
-	
-	            return _cache;
-	        },
-	
-	
-	        /**
-	         * Clear entire cache
-	         * */
-	        clearAll: function clearAll() {
-	            _cache = Object.create(null);
-	
-	            // Trigger `FC_CLEAR` event
-	            this.emit(_events2.default.FC_CLEAR, {});
-	
-	            return true;
-	        },
-	
-	
-	        /**
-	         * Event listeners
-	         * */
-	        on: _listeners.on,
-	        off: _listeners.off,
-	        emit: _listeners.emit
-	    };
-	};
+  var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
-/***/ },
-/* 1 */
-/***/ function(module, exports) {
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports.default = void 0;
+  _keys = _interopRequireDefault(_keys);
+  _extends2 = _interopRequireDefault(_extends2);
+  _classCallCheck2 = _interopRequireDefault(_classCallCheck2);
+  _createClass2 = _interopRequireDefault(_createClass2);
+  _mitt = _interopRequireDefault(_mitt);
+  _events = _interopRequireDefault(_events);
+  _expirer = _interopRequireDefault(_expirer);
+  _newObjectReference = _interopRequireDefault(_newObjectReference);
 
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	/**
-	 * Created by Ganapati on 6/24/17
-	 *
-	 * Event listeners
-	 */
-	
-	var _listeners = Object.create(null);
-	
-	/**
-	 * Add cache event listener
-	 * Snippet borrowed from @developit/mitt
-	 *
-	 * @param {String} type  Event to register, Eg: add, remove, expiry
-	 * @param {String|Object} listener Function to be called on event
-	 * */
-	var on = exports.on = function on(type, listener) {
-	    if (typeof listener === 'function') {
-	        (_listeners[type] || (_listeners[type] = [])).push(listener);
-	    }
-	};
-	
-	/**
-	 * Remove cache event listener
-	 * Snippet borrowed from @developit/mitt
-	 *
-	 * @param {String} type  Event to un register, Eg: add, remove, expiry
-	 * @param {String|Object} listener function to remove
-	 * */
-	var off = exports.off = function off(type, listener) {
-	    if (_listeners[type]) {
-	        _listeners[type].splice(_listeners[type].indexOf(listener) >>> 0, 1);
-	    }
-	};
-	
-	/**
-	 * Emit data to cache event listeners
-	 * Snippet borrowed from @developit/mitt
-	 *
-	 * @param {String} type  Event to be emited
-	 * @param {String|Object} data to pass to listener function
-	 * */
-	var emit = exports.emit = function emit(type, data) {
-	    (_listeners[type] || []).map(function (handler) {
-	        handler(data);
-	    });
-	    (_listeners['*'] || []).map(function (handler) {
-	        handler(type, data);
-	    });
-	};
+  /**
+   * flash-cache: Ultra fast in-memory cache
+   */
+  var flashCache =
+  /*#__PURE__*/
+  function () {
+    /**
+     * Cache store
+     * */
 
-/***/ },
-/* 2 */
-/***/ function(module, exports) {
+    /**
+     * Default config
+     * */
 
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	/**
-	 * Created by guns on 13/07/17.
-	 *
-	 * All events triggered
-	 */
-	
-	var Events = {
-	    FC_EXPIRY: 'fc-expiry',
-	    FC_ADD: 'fc-add',
-	    FC_GET: 'fc-get',
-	    FC_GET_ALL: 'fc-get-all',
-	    FC_REMOVE: 'fc-remove',
-	    FC_CLEAR: 'fc-clear'
-	};
-	
-	exports.default = Events;
+    /**
+     * Event listeners
+     * */
 
-/***/ },
-/* 3 */
-/***/ function(module, exports) {
+    /**
+     * Cache expirer queue
+     */
+    function flashCache() {
+      var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      (0, _classCallCheck2.default)(this, flashCache);
+      Object.defineProperty(this, "cacheStore", {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: {}
+      });
+      Object.defineProperty(this, "defaultConfig", {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: {
+          // Default cache expiry time, 60000ms(60s) by default
+          // Set `false` to disable expiry(This beats the purpose of cache)
+          // `0` will be treated as `false`
+          defaultExpiryIn: 60000
+        }
+      });
+      Object.defineProperty(this, "events", {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: (0, _mitt.default)()
+      });
+      Object.defineProperty(this, "on", {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: this.events.on
+      });
+      Object.defineProperty(this, "off", {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: this.events.off
+      });
+      Object.defineProperty(this, "emit", {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: this.events.emit
+      });
+      Object.defineProperty(this, "expirer", {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: new _expirer.default()
+      });
+      this.config = (0, _extends2.default)({}, this.defaultConfig, config);
+    }
+    /**
+     * Put data into cache
+     *
+     * @param {String} key  Cache key
+     * @param {String|Object} value Value to be stored against cache key
+     * @param {Number} expiryIn Expiry time for the key, defaults to defaultExpiryIn
+     * */
 
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	/**
-	 * Created by Ganapati on 7/05/17
-	 *
-	 * Timers - Expire cache on time(on regular intervals)
-	 */
-	
-	/**
-	 * Check if variable has some value
-	 * */
-	var isExisty = function isExisty(val) {
-	    return val !== null && val !== undefined;
-	};
-	
-	/**
-	 * Store each key's expiry functions in _timers[expiryAt][key]
-	 * */
-	var _timers = {};
-	var _expiryTimerInstance = null;
-	
-	/**
-	 * Expire all keys at time(key) - _timers[time] & remove key from _timers
-	 * */
-	var _cleanUpTimers = function _cleanUpTimers(key) {
-	    if (_timers[key]) {
-	        for (var k in _timers[key]) {
-	            if (_timers[key].hasOwnProperty(k)) {
-	                _timers[key][k]();
-	            }
-	        }
-	        delete _timers[key];
-	    }
-	};
-	
-	/**
-	 * Check for keys expiry each 1 millisecond unless all keys are expired
-	 *
-	 * Cleanup current + old keys(If any)
-	 *
-	 * If no keys exists to expire, stop timer or if timer is not started, attach timer
-	 * */
-	var _checkExpired = function _checkExpired() {
-	    var keys = Object.keys(_timers);
-	    var remainingExpiries = keys.length;
-	    var now = Date.now();
-	    var isTimerActive = isExisty(_expiryTimerInstance);
-	
-	    keys.map(function (k) {
-	        if (k <= now) {
-	            _cleanUpTimers(k);
-	            remainingExpiries -= 1;
-	        }
-	    });
-	
-	    if (!remainingExpiries) {
-	        clearInterval(_expiryTimerInstance);
-	        _expiryTimerInstance = null;
-	    } else if (!isTimerActive) {
-	        _expiryTimerInstance = setInterval(_checkExpired, 1);
-	    }
-	};
-	
-	/**
-	 * Add expiryFn to _timers[expiryAt][key] & start timer if timer not attached
-	 * */
-	var _addToExpiryQueue = function _addToExpiryQueue(expiryAt, key, expiryFn) {
-	    if (!_timers[expiryAt]) {
-	        _timers[expiryAt] = {};
-	    }
-	    _timers[expiryAt][key] = expiryFn;
-	    _checkExpired();
-	};
-	
-	var deleteTimerAtKey = exports.deleteTimerAtKey = function deleteTimerAtKey(expiryAt, key) {
-	    if (_timers[expiryAt][key]) {
-	        delete _timers[expiryAt][key];
-	    }
-	};
-	
-	exports.default = _addToExpiryQueue;
 
-/***/ }
-/******/ ])
+    (0, _createClass2.default)(flashCache, [{
+      key: "put",
+      value: function put() {
+        var _this = this;
+
+        var key = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+        var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+        var expiryIn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.config.defaultExpiryIn;
+
+        // Remove existing values in the key(if any)
+        if (this.cacheStore[key]) {
+          this.remove(key);
+        }
+
+        var time = Date.now(); // Ignore all falsy values(like `0` & `false`)
+        // Basically if there is no expiry, cache will act as simple in-memory data store
+
+        var target = {
+          value: value,
+          time: time,
+          expiryAt: expiryIn ? time + expiryIn : null
+        };
+        this.cacheStore[key] = target; // If expiry time exists, add to expiry queue
+
+        if (target.expiryAt) {
+          // Remove value from cache and trigger expiry event
+          this.expirer.add(target.expiryAt, key, function cb() {
+            _this.emit(_events.default.FC_EXPIRY, {
+              key: key,
+              data: (0, _newObjectReference.default)(_this.cacheStore[key])
+            });
+
+            _this.remove(key, true);
+          });
+        }
+
+        var targetCopy = (0, _newObjectReference.default)(this.cacheStore[key]);
+        this.emit(_events.default.FC_ADD, {
+          key: key,
+          data: targetCopy
+        });
+        return targetCopy;
+      }
+      /**
+       * Get data from cache
+       *
+       * @param {String} key  Cache key
+       * */
+
+    }, {
+      key: "get",
+      value: function get() {
+        var key = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+        var target = this.cacheStore[key];
+
+        if (target) {
+          // Make a new copy of cache
+          var targetCopy = (0, _newObjectReference.default)(target);
+          this.emit(_events.default.FC_GET, {
+            key: key,
+            data: targetCopy
+          });
+          return targetCopy;
+        }
+
+        return null;
+      }
+      /**
+       * Remove data from cache
+       *
+       * @param {String} key  Cache key to be removed
+       * @param {Boolean} shouldEmit  Boolean to indicate the event should be emitted or not
+       * */
+
+    }, {
+      key: "remove",
+      value: function remove(key) {
+        var shouldEmit = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        var target = this.cacheStore[key];
+
+        if (target) {
+          var targetCopy = (0, _newObjectReference.default)(target);
+          var expiryAt = targetCopy.expiryAt; // If timer exists for the key, remove it
+
+          this.expirer.remove(expiryAt, key); // Remove key & value from cache
+
+          delete this.cacheStore[key];
+
+          if (shouldEmit) {
+            this.emit(_events.default.FC_REMOVE, {
+              key: key,
+              data: targetCopy
+            });
+          }
+
+          return true;
+        }
+
+        return false;
+      }
+      /**
+       * Cleanup
+       *    - Clear entire cache
+       *    - Stop expirer
+       * */
+
+    }, {
+      key: "destroy",
+      value: function destroy() {
+        var _this2 = this;
+
+        (0, _keys.default)(this.cacheStore).forEach(function (key) {
+          return _this2.remove(key);
+        });
+        this.emit(_events.default.FC_CLEAR, {});
+        this.expirer.destroy();
+        return true;
+      }
+    }]);
+    return flashCache;
+  }();
+
+  _exports.default = flashCache;
 });
-;
-//# sourceMappingURL=flash-cache.js.map

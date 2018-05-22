@@ -70,11 +70,11 @@ export default class flashCache {
       this.remove(key);
     }
 
-    const time = Date.now();
+    const addedAt = Date.now();
     // Ignore all falsy values(like `0` & `false`)
     // Basically if there is no expiry, cache will act as simple in-memory data store
-    const expiryAt = expiryIn ? time + expiryIn : null;
-    const target = { value, time, expiryAt };
+    const expiryAt = expiryIn ? addedAt + expiryIn : null;
+    const target = { value, addedAt, expiryAt };
     this.cacheStore[key] = target;
 
     // If expiry time exists, add to expiry queue
@@ -99,6 +99,8 @@ export default class flashCache {
    * Get data from cache
    *
    * @param {String} key  Cache key
+   *
+   * @returns {Object} Object { value, addedAt, expiryAt }
    * */
   get(key = "") {
     this.checkIfInstanceIsDisposed();

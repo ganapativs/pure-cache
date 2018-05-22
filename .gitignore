@@ -69,4 +69,4 @@ typings/
 .idea
 
 # User
-dist/
+dist

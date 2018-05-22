@@ -1,7 +1,7 @@
 {
   "name": "flash-cache",
   "version": "0.2.0",
-  "description": "Ultra fast JavaScript data store with expiry ⚡",
+  "description": "Ultra fast JavaScript data cache with near realtime cache expiry ⚡",
   "main": "dist/flash-cache.js",
   "repository": {
     "type": "git",

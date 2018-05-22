@@ -1,10 +1,16 @@
 /**
- * flash-cache: Ultra fast in-memory cache
+ * flash-cache: Ultra fast JavaScript data cache with near realtime cache expiry ⚡
+ *
+ * cacheStore Structure:
+ *    {
+ *      key1: value1,
+ *      key2: value2,
+ *      ...
+ *    }
  */
 import mitt from "mitt";
 import Events from "./constants/events";
 import Expirer from "./expirer";
-import newObjectReference from "./utils/newObjectReference";
 
 export default class flashCache {
   /**
@@ -17,36 +23,48 @@ export default class flashCache {
    * */
   defaultConfig = {
     // Default cache expiry time, 60000ms(60s) by default
-    // Set `false` to disable expiry(This beats the purpose of cache)
-    // `0` will be treated as `false`
-    defaultExpiryIn: 60000
+    // Set `false` to disable expiry(This beats the purpose of cache, the data is store until the instance is disposed)
+    // Note: Falsy values like `0` will be treated as `false`
+    defaultCacheExpiryIn: 60000,
+    // By default, check for cache expiry every 100 ms
+    // Reducing this value might create performance issues
+    expiryCheckInterval: 100
   };
 
-  /**
-   * Event listeners
-   * */
-  events = mitt();
-  on = this.events.on;
-  off = this.events.off;
-  emit = this.events.emit;
-
-  /**
-   * Cache expirer queue
-   */
-  expirer = new Expirer();
-
   constructor(config = {}) {
+    // Configuration
     this.config = { ...this.defaultConfig, ...config };
+
+    // Event listeners
+    const { on, off, emit } = mitt();
+    [this.on, this.off, this.emit] = [on, off, emit];
+
+    // Instance dispose status
+    this.instanceDisposed = false;
+
+    // Create cache expirer instance, which maintains its own expiry queue
+    const { expiryCheckInterval } = this.config;
+    this.cacheExpirer = new Expirer({ expiryCheckInterval });
   }
+
+  checkIfInstanceIsDisposed = () => {
+    if (this.instanceDisposed) {
+      throw new Error(
+        "This instance is already disposed. Please create new instance and try again."
+      );
+    }
+  };
 
   /**
    * Put data into cache
    *
    * @param {String} key  Cache key
-   * @param {String|Object} value Value to be stored against cache key
-   * @param {Number} expiryIn Expiry time for the key, defaults to defaultExpiryIn
+   * @param {String|Object|*} value Value to be stored against cache key
+   * @param {Number} expiryIn Expiry time for the key, defaults to defaultCacheExpiryIn
    * */
-  put(key = "", value = "", expiryIn = this.config.defaultExpiryIn) {
+  put(key = "", value = "", expiryIn = this.config.defaultCacheExpiryIn) {
+    this.checkIfInstanceIsDisposed();
+
     // Remove existing values in the key(if any)
     if (this.cacheStore[key]) {
       this.remove(key);
@@ -55,25 +73,26 @@ export default class flashCache {
     const time = Date.now();
     // Ignore all falsy values(like `0` & `false`)
     // Basically if there is no expiry, cache will act as simple in-memory data store
-    const target = { value, time, expiryAt: expiryIn ? time + expiryIn : null };
+    const expiryAt = expiryIn ? time + expiryIn : null;
+    const target = { value, time, expiryAt };
     this.cacheStore[key] = target;
 
     // If expiry time exists, add to expiry queue
-    if (target.expiryAt) {
+    if (expiryAt) {
       // Remove value from cache and trigger expiry event
-      const cb = () => {
+      const onExpire = () => {
         this.emit(Events.FC_EXPIRY, {
           key,
-          data: newObjectReference(this.cacheStore[key])
+          data: target
         });
         this.remove(key, true);
       };
-      this.expirer.add(target.expiryAt, key, cb);
-    }
 
-    const targetCopy = newObjectReference(this.cacheStore[key]);
-    this.emit(Events.FC_ADD, { key, data: targetCopy });
-    return targetCopy;
+      this.cacheExpirer.add(expiryAt, key, onExpire);
+    }
+    this.emit(Events.FC_ADD, { key, data: target });
+
+    return target;
   }
 
   /**
@@ -82,13 +101,13 @@ export default class flashCache {
    * @param {String} key  Cache key
    * */
   get(key = "") {
+    this.checkIfInstanceIsDisposed();
+
     const target = this.cacheStore[key];
 
     if (target) {
-      // Make a new copy of cache
-      const targetCopy = newObjectReference(target);
-      this.emit(Events.FC_GET, { key, data: targetCopy });
-      return targetCopy;
+      this.emit(Events.FC_GET, { key, data: target });
+      return target;
     }
 
     return null;
@@ -101,17 +120,18 @@ export default class flashCache {
    * @param {Boolean} shouldEmit  Boolean to indicate the event should be emitted or not
    * */
   remove(key, shouldEmit = false) {
+    this.checkIfInstanceIsDisposed();
+
     const target = this.cacheStore[key];
 
     if (target) {
-      const targetCopy = newObjectReference(target);
-      const { expiryAt } = targetCopy;
-      // If timer exists for the key, remove it
-      this.expirer.remove(expiryAt, key);
       // Remove key & value from cache
       delete this.cacheStore[key];
+      const { expiryAt } = target;
+      // If timer exists for the key, remove it
+      this.cacheExpirer.remove(expiryAt, key);
       if (shouldEmit) {
-        this.emit(Events.FC_REMOVE, { key, data: targetCopy });
+        this.emit(Events.FC_REMOVE, { key, data: target });
       }
       return true;
     }
@@ -124,10 +144,14 @@ export default class flashCache {
    *    - Clear entire cache
    *    - Stop expirer
    * */
-  destroy() {
+  dispose() {
+    this.checkIfInstanceIsDisposed();
+
     Object.keys(this.cacheStore).forEach(key => this.remove(key));
     this.emit(Events.FC_CLEAR, {});
-    this.expirer.destroy();
+    this.cacheExpirer.dispose();
+    this.instanceDisposed = true;
+
     return true;
   }
 }

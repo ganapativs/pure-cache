@@ -1,3 +1,3 @@
 # flash-cache
 
-Ultra fast data caching for node & browser ⚡
+Ultra fast JavaScript data cache with near realtime cache expiry ⚡

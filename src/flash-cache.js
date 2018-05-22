@@ -3,8 +3,8 @@
  *
  * cacheStore Structure:
  *    {
- *      key1: value1,
- *      key2: value2,
+ *      key1: { value: value1, addedAt: 1527012874728, expiryAt: 1527012879729 },
+ *      key2: { value: value2, addedAt: 1527012908893, expiryAt: 1527012909880 },
  *      ...
  *    }
  */

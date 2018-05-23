@@ -11,10 +11,21 @@
 export default class Expirer {
   queue = {};
 
-  constructor({ expiryCheckInterval = 100 }) {
-    /**
-     * Run the expiry function at every configured interval time
-     */
+  /**
+   * Default config
+   * */
+  defaultConfig = {
+    // By default, check for cache expiry every 100 ms
+    // Reducing this value might create performance issues
+    expiryCheckInterval: 100
+  };
+
+  constructor(config = {}) {
+    // Configuration
+    this.config = { ...this.defaultConfig, ...config };
+
+    // Run the expiry function at every configured interval time
+    const { expiryCheckInterval } = this.config;
     this.timer = setInterval(this.expire, expiryCheckInterval);
   }
 

@@ -24,15 +24,28 @@ export default class Expirer {
     // Configuration
     this.config = { ...this.defaultConfig, ...config };
 
+    // Instance dispose status
+    this.instanceDisposed = false;
+
     // Run the expiry function at every configured interval time
     const { expiryCheckInterval } = this.config;
     this.timer = setInterval(this.expire, expiryCheckInterval);
   }
 
+  checkIfInstanceIsDisposed = () => {
+    if (this.instanceDisposed) {
+      throw new Error(
+        "This instance is already disposed. Please create new instance and try again."
+      );
+    }
+  };
+
   /**
    * Expiry function
    * */
   expire = () => {
+    this.checkIfInstanceIsDisposed();
+
     const time = Date.now();
 
     // Extract all keys which are less than or equal to current keys
@@ -59,6 +72,8 @@ export default class Expirer {
    * @param {Function} onExpire Expiry callback, called when Date.now() ~= time
    * */
   add(time, key, onExpire) {
+    this.checkIfInstanceIsDisposed();
+
     if (!this.queue[time]) {
       this.queue[time] = [];
     }
@@ -75,6 +90,8 @@ export default class Expirer {
    * @param {String} key Cache key to remove
    * */
   remove(time, key) {
+    this.checkIfInstanceIsDisposed();
+
     const queue = this.queue[time];
 
     if (queue) {
@@ -98,8 +115,13 @@ export default class Expirer {
    *    - Clear expirer timer
    * */
   dispose() {
+    this.checkIfInstanceIsDisposed();
+
     clearInterval(this.timer);
+    this.timer = null;
     this.queue = {};
+    this.instanceDisposed = true;
+
     return true;
   }
 }

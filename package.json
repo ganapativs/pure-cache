@@ -25,9 +25,11 @@
     "clean": "rm -rf dist",
     "prebuild": "yarn run clean && yarn run mkdir",
     "build": "NODE_ENV=production babel --plugins '@babel/transform-modules-umd' src --out-dir ./dist",
-    "prepublish": "yarn run build",
-    "lint": "eslint ./src --ext .js",
-    "lint-fix": "eslint ./src --fix --ext .js"
+    "prepublish": "yarn run test",
+    "lint": "eslint ./src ./test --ext .js",
+    "lint-fix": "eslint ./src ./test --fix --ext .js",
+    "testonly": "mocha --require reify/node test/**/*.js",
+    "test": "yarn run lint && yarn run build && npm run testonly"
   },
   "devDependencies": {
     "@babel/cli": "7.0.0-beta.40",
@@ -43,13 +45,18 @@
     "babel-plugin-minify-guarded-expressions": "^0.4.0",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-plugin-transform-inline-environment-variables": "^0.4.0",
+    "chai": "^4.1.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-babel": "^5.1.0",
     "eslint-plugin-import": "^2.11.0",
     "eslint-plugin-prettier": "^2.6.0",
-    "prettier": "^1.12.1"
+    "mocha": "^5.2.0",
+    "prettier": "^1.12.1",
+    "reify": "^0.15.1",
+    "sinon": "^5.0.7",
+    "sinon-chai": "^3.1.0"
   },
   "dependencies": {
     "mitt": "^1.1.3"

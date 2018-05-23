@@ -1,18 +1,18 @@
 {
-  "name": "xcache",
+  "name": "caxhe",
   "version": "0.2.0",
   "description": "Cache with confidence 🎉 Ultra fast & simple JavaScript cache with near realtime cache expiry feature ⚡",
-  "main": "dist/xcache.js",
+  "main": "dist/caxhe.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ganapativs/xcache.git"
+    "url": "https://github.com/ganapativs/caxhe.git"
   },
   "author": "Ganapati V S <vsg.inbox@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ganapativs/xcache/issues"
+    "url": "https://github.com/ganapativs/caxhe/issues"
   },
-  "homepage": "https://github.com/ganapativs/xcache",
+  "homepage": "https://github.com/ganapativs/caxhe",
   "keywords": [
     "cache",
     "ultra fast",

@@ -1,5 +1,5 @@
 {
-  "name": "xCache",
+  "name": "xcache",
   "version": "0.2.0",
   "description": "Cache with confidence 🎉 Ultra fast & simple JavaScript cache with near realtime cache expiry feature ⚡",
   "main": "dist/xcache.js",

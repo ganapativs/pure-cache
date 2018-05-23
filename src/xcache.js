@@ -1,5 +1,5 @@
 /**
- * flash-cache: Ultra fast JavaScript data cache with near realtime cache expiry ⚡
+ * xCache: Cache with confidence 🎉 Ultra fast & simple JavaScript cache with near realtime cache expiry feature ⚡
  *
  * cacheStore Structure:
  *    {
@@ -12,7 +12,7 @@ import mitt from "mitt";
 import Events from "./constants/events";
 import Expirer from "./expirer";
 
-export default class flashCache {
+export default class xCache {
   /**
    * Cache store
    * */

@@ -1,3 +1,3 @@
-# flash-cache
+# xCache
 
-Ultra fast JavaScript data cache with near realtime cache expiry ⚡
+Cache with confidence 🎉 Ultra fast & simple JavaScript cache with near realtime cache expiry feature ⚡

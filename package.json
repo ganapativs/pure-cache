@@ -1,20 +1,19 @@
 {
-  "name": "flash-cache",
+  "name": "xCache",
   "version": "0.2.0",
-  "description": "Ultra fast JavaScript data cache with near realtime cache expiry ⚡",
-  "main": "dist/flash-cache.js",
+  "description": "Cache with confidence 🎉 Ultra fast & simple JavaScript cache with near realtime cache expiry feature ⚡",
+  "main": "dist/xcache.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ganapativs/flash-cache.git"
+    "url": "https://github.com/ganapativs/xcache.git"
   },
   "author": "Ganapati V S <vsg.inbox@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ganapativs/flash-cache/issues"
+    "url": "https://github.com/ganapativs/xcache/issues"
   },
-  "homepage": "https://github.com/ganapativs/flash-cache",
+  "homepage": "https://github.com/ganapativs/xcache",
   "keywords": [
-    "flash",
     "cache",
     "ultra fast",
     "speed",

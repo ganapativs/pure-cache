@@ -28,7 +28,7 @@ describe("Expirer ⏳", () => {
     instance.add(expiryTime, "foo", onExpire);
 
     setTimeout(() => {
-      expect(onExpire.calledOnce).to.be.equals(true);
+      expect(onExpire).to.be.calledOnceWithExactly("foo");
       done();
     }, 2100);
   });

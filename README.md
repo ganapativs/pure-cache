@@ -1,38 +1,36 @@
-# caxhe
-
-> **caxhe** stands for **ca*(x›c)*he** 🤓
+# pure-cache
 
 Cache with confidence 🎉
 
 Ultra fast & simple JavaScript cache with near realtime cache expiry feature ⚡
 
 [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
-[![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ganapativs/caxhe/)
+[![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ganapativs/pure-cache/)
 
-[![npm version](https://badge.fury.io/js/caxhe.svg)](https://badge.fury.io/js/caxhe)
-[![GitHub version](https://badge.fury.io/gh/ganapativs%2Fcaxhe.svg)](https://badge.fury.io/gh/ganapativs%2Fcaxhe)
+[![npm version](https://badge.fury.io/js/pure-cache.svg)](https://badge.fury.io/js/pure-cache)
+[![GitHub version](https://badge.fury.io/gh/ganapativs%2Fpure-cache.svg)](https://badge.fury.io/gh/ganapativs%2Fpure-cache)
 
 ## Installation
 
 ### NPM
 
 ```sh
-npm install caxhe
+npm install pure-cache
 ```
 
 ### Yarn
 
 ```sh
-yarn add caxhe
+yarn add pure-cache
 ```
 
 ## Basic Usage
 
 ```javascript
-import Cache from 'caxhe';
+import PureCache from 'pure-cache';
 
 // Create instance of cache store
-const cacheStore = new Cache({ expiryCheckInterval: 500 });
+const cacheStore = new PureCache({ expiryCheckInterval: 500 });
 
 // Put 'bar' data into 'foo' key in cache and configure it to expire after 30s
 cacheStore.put('foo', 'bar', 30000);

@@ -1,5 +1,5 @@
 /**
- * Caxhe: Cache with confidence 🎉 Ultra fast & simple JavaScript cache with near realtime cache expiry feature ⚡
+ * pure-cache: Cache with confidence 🎉 Ultra fast & simple JavaScript cache with near realtime cache expiry feature ⚡
  *
  * cacheStore Structure:
  *    {
@@ -12,7 +12,7 @@ import mitt from "mitt";
 import Events from "./constants/events";
 import Expirer from "./expirer";
 
-export default class Caxhe {
+export default class PureCache {
   /**
    * Cache store
    * */

@@ -20,6 +20,19 @@ describe("Expirer ⏳", () => {
     if (!instance.instanceDisposed) instance.dispose();
   });
 
+  it("Single key onExpiry handler called", function singleKeyExpiry(done) {
+    this.timeout(2500); // eslint-disable-line babel/no-invalid-this
+
+    const expiryTime = Date.now() + 2000;
+    const onExpire = spy();
+    instance.add(expiryTime, "foo", onExpire);
+
+    setTimeout(() => {
+      expect(onExpire.calledOnce).to.be.equals(true);
+      done();
+    }, 2100);
+  });
+
   describe("Instance creation", () => {
     it("should be a empty queue", () => {
       expect(instance)

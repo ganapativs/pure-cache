@@ -27,6 +27,11 @@ export default class Expirer {
     // Instance dispose status
     this.instanceDisposed = false;
 
+    // Store last expired time to navigate from current expired time to last expired time
+    // Set initial value to current time - 1
+    // Don't set to 0 as expiry function will loop from current time to 0
+    this.lastExpiredTime = Date.now() - 1;
+
     // Run the expiry function at every configured interval time
     const { expiryCheckInterval } = this.config;
     this.timer = setInterval(this.expire, expiryCheckInterval);
@@ -48,20 +53,16 @@ export default class Expirer {
 
     const time = Date.now();
 
-    // Extract all keys which are less than or equal to current keys
-    const keysToExpire = Object.keys(this.queue).filter(
-      t => parseInt(t, 10) <= time
-    );
-
-    for (let i = 0; i < keysToExpire.length; i += 1) {
-      const current = keysToExpire[i];
-      const toExpire = this.queue[current];
+    for (let t = time; t >= this.lastExpiredTime; t -= 1) {
+      const toExpire = this.queue[t];
 
       if (toExpire) {
-        delete this.queue[current];
+        delete this.queue[t];
         toExpire.forEach(({ key, onExpire }) => onExpire(key));
       }
     }
+
+    this.lastExpiredTime = time;
   };
 
   /**

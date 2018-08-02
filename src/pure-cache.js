@@ -81,16 +81,16 @@ export default class PureCache {
     if (expiryAt) {
       // Remove value from cache and trigger expiry event
       const onExpire = () => {
-        this.emit(Events.FC_EXPIRY, {
+        this.emit(Events.EXPIRY, {
           key,
           data: target
         });
-        this.remove(key, true);
+        this.remove(key);
       };
 
       this.cacheExpirer.add(expiryAt, key, onExpire);
     }
-    this.emit(Events.FC_ADD, { key, data: target });
+    this.emit(Events.ADD, { key, data: target });
 
     return target;
   }
@@ -108,7 +108,7 @@ export default class PureCache {
     const target = this.cacheStore[key];
 
     if (target) {
-      this.emit(Events.FC_GET, { key, data: target });
+      this.emit(Events.GET, { key, data: target });
       return target;
     }
 
@@ -119,9 +119,8 @@ export default class PureCache {
    * Remove data from cache
    *
    * @param {String} key  Cache key to be removed
-   * @param {Boolean} shouldEmit  Boolean to indicate the event should be emitted or not
    * */
-  remove(key, shouldEmit = false) {
+  remove(key) {
     this.checkIfInstanceIsDisposed();
 
     const target = this.cacheStore[key];
@@ -132,9 +131,8 @@ export default class PureCache {
       const { expiryAt } = target;
       // If timer exists for the key, remove it
       this.cacheExpirer.remove(expiryAt, key);
-      if (shouldEmit) {
-        this.emit(Events.FC_REMOVE, { key, data: target });
-      }
+      this.emit(Events.REMOVE, { key, data: target });
+
       return true;
     }
 
@@ -150,7 +148,7 @@ export default class PureCache {
     this.checkIfInstanceIsDisposed();
 
     Object.keys(this.cacheStore).forEach(key => this.remove(key));
-    this.emit(Events.FC_CLEAR, {});
+    this.emit(Events.CLEAR, {});
     this.cacheExpirer.dispose();
     this.instanceDisposed = true;
 

@@ -1,5 +1,5 @@
 /**
- * pure-cache: Cache with confidence 🎉 Ultra fast & simple JavaScript cache with near realtime cache expiry feature ⚡
+ * pure-cache: Cache with confidence 🎉 Ultra fast in-memory JavaScript cache with near realtime cache expiry feature ⚡
  *
  * cacheStore Structure:
  *    {

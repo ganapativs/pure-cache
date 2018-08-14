@@ -1,7 +1,7 @@
 {
   "name": "pure-cache",
   "version": "0.3.0",
-  "description": "Cache with confidence 🎉 Ultra fast & simple JavaScript cache with near realtime cache expiry feature ⚡",
+  "description": "Cache with confidence 🎉 Ultra fast in-memory JavaScript cache with near realtime cache expiry feature ⚡",
   "main": "dist/pure-cache.js",
   "repository": {
     "type": "git",
@@ -25,11 +25,11 @@
     "clean": "rm -rf dist",
     "prebuild": "yarn run clean && yarn run mkdir",
     "build": "NODE_ENV=production babel --plugins '@babel/transform-modules-umd' src --out-dir ./dist",
-    "prepublish": "yarn run test",
     "lint": "eslint ./src ./test --ext .js",
     "lint-fix": "eslint ./src ./test --fix --ext .js",
-    "testonly": "mocha --require reify/node test/**/*.js",
-    "test": "yarn run build && yarn run lint && npm run testonly"
+    "pretest": "yarn run build && yarn run lint",
+    "test": "mocha --require reify/node test/**/*.js",
+    "prepublishOnly": "yarn run test"
   },
   "devDependencies": {
     "@babel/cli": "7.0.0-beta.54",

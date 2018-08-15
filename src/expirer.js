@@ -7,6 +7,7 @@
  *    time2: [{key: key3, onExpire: () => {}}]
  *  }
  */
+import checkIfInstanceIsDisposed from "./utils/checkInstanceDisposal";
 
 export default class Expirer {
   queue = {};
@@ -37,19 +38,11 @@ export default class Expirer {
     this.timer = setInterval(this.expire, expiryCheckInterval);
   }
 
-  checkIfInstanceIsDisposed = () => {
-    if (this.instanceDisposed) {
-      throw new Error(
-        "This instance is already disposed. Please create new instance and try again."
-      );
-    }
-  };
-
   /**
    * Expiry function
    * */
   expire = () => {
-    this.checkIfInstanceIsDisposed();
+    checkIfInstanceIsDisposed(this.instanceDisposed);
 
     const time = Date.now();
 
@@ -73,7 +66,7 @@ export default class Expirer {
    * @param {Function} onExpire Expiry callback, called when Date.now() ~= time
    * */
   add(time, key, onExpire) {
-    this.checkIfInstanceIsDisposed();
+    checkIfInstanceIsDisposed(this.instanceDisposed);
 
     if (!this.queue[time]) {
       this.queue[time] = [];
@@ -91,7 +84,7 @@ export default class Expirer {
    * @param {String} key Cache key to remove
    * */
   remove(time, key) {
-    this.checkIfInstanceIsDisposed();
+    checkIfInstanceIsDisposed(this.instanceDisposed);
 
     const queue = this.queue[time];
 
@@ -116,7 +109,7 @@ export default class Expirer {
    *    - Clear expirer timer
    * */
   dispose() {
-    this.checkIfInstanceIsDisposed();
+    checkIfInstanceIsDisposed(this.instanceDisposed);
 
     clearInterval(this.timer);
     this.timer = null;

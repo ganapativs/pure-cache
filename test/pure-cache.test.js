@@ -1,7 +1,7 @@
 import chai, { expect } from "chai";
 import { spy } from "sinon";
 import sinonChai from "sinon-chai";
-import PureCache from "../dist/pure-cache";
+import PureCache from "../src/pure-cache";
 
 chai.use(sinonChai);
 

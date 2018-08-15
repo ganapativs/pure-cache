@@ -49,7 +49,6 @@ cacheStore.get('foo'); // null
 ## Todo
 
 - [ ] Update documentation with events and more examples
-- [ ] Test cases
 
 ## License
 

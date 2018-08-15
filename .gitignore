@@ -67,7 +67,3 @@ typings/
 .*.haste_cache.*
 .DS_Store
 .idea
-
-# User
-dist
-.reify-cache

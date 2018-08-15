@@ -31,6 +31,5 @@
         "babel/no-invalid-this": 2,
         "prettier/prettier": "error"
     },
-    "globals": {
-    }
+    "globals": {}
 }

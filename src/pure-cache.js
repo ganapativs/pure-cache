@@ -11,6 +11,7 @@
 import mitt from "mitt";
 import Events from "./constants/events";
 import Expirer from "./expirer";
+import checkIfInstanceIsDisposed from "./utils/checkInstanceDisposal";
 
 export default class PureCache {
   /**
@@ -47,14 +48,6 @@ export default class PureCache {
     this.cacheExpirer = new Expirer({ expiryCheckInterval });
   }
 
-  checkIfInstanceIsDisposed = () => {
-    if (this.instanceDisposed) {
-      throw new Error(
-        "This instance is already disposed. Please create new instance and try again."
-      );
-    }
-  };
-
   /**
    * Put data into cache
    *
@@ -63,7 +56,7 @@ export default class PureCache {
    * @param {Number} expiryIn Expiry time for the key, defaults to defaultCacheExpiryIn
    * */
   put(key = "", value = "", expiryIn = this.config.defaultCacheExpiryIn) {
-    this.checkIfInstanceIsDisposed();
+    checkIfInstanceIsDisposed(this.instanceDisposed);
 
     // Remove existing values in the key(if any)
     if (this.cacheStore[key]) {
@@ -103,7 +96,7 @@ export default class PureCache {
    * @returns {Object} Object { value, addedAt, expiryAt }
    * */
   get(key = "") {
-    this.checkIfInstanceIsDisposed();
+    checkIfInstanceIsDisposed(this.instanceDisposed);
 
     const target = this.cacheStore[key];
 
@@ -121,7 +114,7 @@ export default class PureCache {
    * @param {String} key  Cache key to be removed
    * */
   remove(key) {
-    this.checkIfInstanceIsDisposed();
+    checkIfInstanceIsDisposed(this.instanceDisposed);
 
     const target = this.cacheStore[key];
 
@@ -145,7 +138,7 @@ export default class PureCache {
    *    - Stop expirer
    * */
   dispose() {
-    this.checkIfInstanceIsDisposed();
+    checkIfInstanceIsDisposed(this.instanceDisposed);
 
     Object.keys(this.cacheStore).forEach(key => this.remove(key));
     this.emit(Events.CLEAR, {});

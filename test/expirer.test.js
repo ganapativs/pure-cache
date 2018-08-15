@@ -1,7 +1,7 @@
 import chai, { expect } from "chai";
 import { spy } from "sinon";
 import sinonChai from "sinon-chai";
-import Expirer from "../dist/expirer";
+import Expirer from "../src/expirer";
 
 chai.use(sinonChai);
 

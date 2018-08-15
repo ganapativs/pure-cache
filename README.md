@@ -24,7 +24,7 @@ npm install pure-cache
 yarn add pure-cache
 ```
 
-### Browser build
+### UMD build
 
 ```html
 <script src="https://unpkg.com/pure-cache/dist/pure-cache.umd.js"></script>

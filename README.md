@@ -32,7 +32,7 @@ yarn add pure-cache
 
 ## Basic Usage
 
-```javascript
+```js
 import PureCache from 'pure-cache';
 
 // Create instance of cache store
@@ -44,7 +44,7 @@ cacheStore.put('foo', 'bar', 30000);
 // Get 'foo' key value from cache
 cacheStore.get('foo'); // { value: 'bar', addedAt: 1527052395294, expiryAt: 1527052425294 }
 
-// Wait till expiry time
+// Wait till expiry time(basically 30+ seconds in this case)
 await wait(31000);
 
 // Now the cache will return null value for 'foo' key

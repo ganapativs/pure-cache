@@ -1,5 +1,8 @@
 language: node_js
 sudo: false
+os:
+  - linux
+  - osx
 node_js:
   - "node"
   - "10"
@@ -7,3 +10,6 @@ node_js:
   - "8"
   # - "7" - Unsupported(https://github.com/nodejs/Release#end-of-life-releases)
   - "6"
+script:
+  - yarn build
+  - yarn test

@@ -1,19 +1,19 @@
 import chai, { expect } from "chai";
 import { spy } from "sinon";
 import sinonChai from "sinon-chai";
-import Expirer from "../src/expirer";
+import InMemoryExpirer from "../src/inMemoryExpirer";
 
 chai.use(sinonChai);
 
-describe("Expirer ⏳", () => {
+describe("InMemoryExpirer ⏳", () => {
   it("should default export be a function", () => {
-    expect(Expirer).to.be.a("function");
+    expect(InMemoryExpirer).to.be.a("function");
   });
 
   let instance;
 
   beforeEach(() => {
-    instance = new Expirer();
+    instance = new InMemoryExpirer();
   });
 
   afterEach(() => {

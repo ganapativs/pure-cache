@@ -15,7 +15,7 @@ const getPlugins = () => [
 
 export default [
   {
-    input: "src/pure-cache.js",
+    input: "src/pureCache.js",
     output: {
       name: "PureCache",
       file: pkg.browser,
@@ -25,7 +25,7 @@ export default [
     plugins: getPlugins().concat([uglify()])
   },
   {
-    input: "src/pure-cache.js",
+    input: "src/pureCache.js",
     external: ["mitt"],
     output: [
       {

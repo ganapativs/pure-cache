@@ -10,7 +10,7 @@
  */
 import mitt from "mitt";
 import Events from "./constants/events";
-import Expirer from "./expirer";
+import InMemoryExpirer from "./inMemoryExpirer";
 import checkIfInstanceIsDisposed from "./utils/checkInstanceDisposal";
 
 /**
@@ -37,7 +37,7 @@ export default class PureCache {
    * */
   disposed = false;
 
-  constructor(config = {}) {
+  constructor(config = {}, Expirer = InMemoryExpirer) {
     // Configuration
     this.config = Object.assign({}, defaultConfig, config);
 

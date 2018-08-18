@@ -18,7 +18,7 @@ const defaultConfig = {
   expiryCheckInterval: 100
 };
 
-export default class Expirer {
+export default class InMemoryExpirer {
   /**
    * Expirer queue
    * */

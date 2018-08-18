@@ -64,7 +64,7 @@ var defaultConfig = {
   expiryCheckInterval: 100
 };
 
-var Expirer =
+var InMemoryExpirer =
 /*#__PURE__*/
 function () {
   /**
@@ -80,12 +80,12 @@ function () {
    * Set initial value to current time - 1
    * Don't set to 0 as expiry function will loop from current time to 0
    * */
-  function Expirer() {
+  function InMemoryExpirer() {
     var _this = this;
 
     var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-    _classCallCheck(this, Expirer);
+    _classCallCheck(this, InMemoryExpirer);
 
     _defineProperty(this, "queue", {});
 
@@ -124,7 +124,7 @@ function () {
    * */
 
 
-  _createClass(Expirer, [{
+  _createClass(InMemoryExpirer, [{
     key: "add",
 
     /**
@@ -196,7 +196,7 @@ function () {
     }
   }]);
 
-  return Expirer;
+  return InMemoryExpirer;
 }();
 
 /**
@@ -225,6 +225,7 @@ function () {
    * */
   function PureCache() {
     var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var Expirer = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : InMemoryExpirer;
 
     _classCallCheck(this, PureCache);
 

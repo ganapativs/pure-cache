@@ -17,7 +17,7 @@ describe("Expirer ⏳", () => {
   });
 
   afterEach(() => {
-    if (!instance.instanceDisposed) instance.dispose();
+    if (!instance.disposed) instance.dispose();
   });
 
   describe("Instance creation", () => {
@@ -110,7 +110,7 @@ describe("Expirer ⏳", () => {
   });
 
   describe("Expiry of key(s)", function expiry() {
-    this.timeout(5500); // eslint-disable-line babel/no-invalid-this
+    this.timeout(6000); // eslint-disable-line babel/no-invalid-this
 
     it("Single key", done => {
       const expiryTime = Date.now() + 2000;
@@ -122,11 +122,11 @@ describe("Expirer ⏳", () => {
           .to.have.property("queue")
           .that.deep.equals({});
         done();
-      }, 2100);
+      }, 2500);
     });
 
     it("Single key - onExpiry handler called", function singleKeyExpiry(done) {
-      this.timeout(2500); // eslint-disable-line babel/no-invalid-this
+      this.timeout(3000); // eslint-disable-line babel/no-invalid-this
 
       const expiryTime = Date.now() + 2000;
       const onExpire = spy();
@@ -135,7 +135,7 @@ describe("Expirer ⏳", () => {
       setTimeout(() => {
         expect(onExpire).to.be.calledOnceWithExactly("foo");
         done();
-      }, 2100);
+      }, 2500);
     });
 
     it("Multiple keys", done => {
@@ -156,15 +156,15 @@ describe("Expirer ⏳", () => {
             [expiryTime2]: [{ key: "bar", onExpire: onExpire2 }]
           });
         done();
-      }, 3100);
+      }, 3500);
     });
   });
 
   describe("Instance dispose", () => {
-    it("Should set `instanceDisposed` to `true` when instance is disposed", () => {
+    it("Should set `disposed` to `true` when instance is disposed", () => {
       instance.dispose();
 
-      expect(instance.instanceDisposed).to.be.equals(true);
+      expect(instance.disposed).to.be.equals(true);
     });
 
     it("Timer should be cleared when instance is disposed", () => {

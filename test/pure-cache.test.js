@@ -17,7 +17,7 @@ describe("PureCache ✨", () => {
   });
 
   afterEach(() => {
-    if (!instance.instanceDisposed) instance.dispose();
+    if (!instance.disposed) instance.dispose();
   });
 
   describe("Instance creation", () => {
@@ -173,7 +173,7 @@ describe("PureCache ✨", () => {
   });
 
   describe("Remove data", function removeData() {
-    this.timeout(5500); // eslint-disable-line babel/no-invalid-this
+    this.timeout(6500); // eslint-disable-line babel/no-invalid-this
 
     it("Single key", done => {
       this.timeout(2500); // eslint-disable-line babel/no-invalid-this
@@ -193,7 +193,7 @@ describe("PureCache ✨", () => {
     });
 
     it("Multiple keys", done => {
-      this.timeout(5200); // eslint-disable-line babel/no-invalid-this
+      this.timeout(5500); // eslint-disable-line babel/no-invalid-this
       const key1 = "foo";
       const value1 = "bar";
       const expireIn1 = 2000;
@@ -215,7 +215,7 @@ describe("PureCache ✨", () => {
   });
 
   describe("Event should be emitted when data is removed", function expire() {
-    this.timeout(5500); // eslint-disable-line babel/no-invalid-this
+    this.timeout(2500); // eslint-disable-line babel/no-invalid-this
 
     it("Single key", () => {
       const key = "foo";
@@ -233,7 +233,7 @@ describe("PureCache ✨", () => {
   });
 
   describe("Data expiry", function removeData() {
-    this.timeout(5500); // eslint-disable-line babel/no-invalid-this
+    this.timeout(9000); // eslint-disable-line babel/no-invalid-this
 
     it("Single key & value", done => {
       this.timeout(2500); // eslint-disable-line babel/no-invalid-this
@@ -247,11 +247,11 @@ describe("PureCache ✨", () => {
       setTimeout(() => {
         expect(Object.keys(instance.cacheStore).length).to.be.equals(0);
         done();
-      }, 2100);
+      }, 2500);
     });
 
     it("Multiple keys & values", done => {
-      this.timeout(5200); // eslint-disable-line babel/no-invalid-this
+      this.timeout(6000); // eslint-disable-line babel/no-invalid-this
       const key1 = "foo";
       const value1 = "bar";
       const expireIn1 = 2000;
@@ -266,12 +266,12 @@ describe("PureCache ✨", () => {
       setTimeout(() => {
         expect(Object.keys(instance.cacheStore).length).to.be.equals(0);
         done();
-      }, 5100);
+      }, 5500);
     });
   });
 
   describe("Event should be emitted when data expires", function expire() {
-    this.timeout(5500); // eslint-disable-line babel/no-invalid-this
+    this.timeout(3000); // eslint-disable-line babel/no-invalid-this
 
     it("Single key", done => {
       this.timeout(2500); // eslint-disable-line babel/no-invalid-this
@@ -293,10 +293,10 @@ describe("PureCache ✨", () => {
   });
 
   describe("Instance dispose", () => {
-    it("Should set `instanceDisposed` to `true` when instance is disposed", () => {
+    it("Should set `disposed` to `true` when instance is disposed", () => {
       instance.dispose();
 
-      expect(instance.instanceDisposed).to.be.equals(true);
+      expect(instance.disposed).to.be.equals(true);
     });
 
     it("cacheStore should be empty object when instance is disposed", () => {

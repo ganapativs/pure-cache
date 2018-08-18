@@ -9,29 +9,36 @@
  */
 import checkIfInstanceIsDisposed from "./utils/checkInstanceDisposal";
 
+/**
+ * Default config
+ * */
+const defaultConfig = {
+  // By default, check for cache expiry every 100 ms
+  // Reducing this value might create performance issues
+  expiryCheckInterval: 100
+};
+
 export default class Expirer {
+  /**
+   * Expirer queue
+   * */
   queue = {};
 
   /**
-   * Default config
+   * Instance dispose status
    * */
-  defaultConfig = {
-    // By default, check for cache expiry every 100 ms
-    // Reducing this value might create performance issues
-    expiryCheckInterval: 100
-  };
+  disposed = false;
+
+  /**
+   * Store last expired time to navigate from current expired time to last expired time
+   * Set initial value to current time - 1
+   * Don't set to 0 as expiry function will loop from current time to 0
+   * */
+  lastExpiredTime = Date.now() - 1;
 
   constructor(config = {}) {
     // Configuration
-    this.config = { ...this.defaultConfig, ...config };
-
-    // Instance dispose status
-    this.instanceDisposed = false;
-
-    // Store last expired time to navigate from current expired time to last expired time
-    // Set initial value to current time - 1
-    // Don't set to 0 as expiry function will loop from current time to 0
-    this.lastExpiredTime = Date.now() - 1;
+    this.config = Object.assign({}, defaultConfig, config);
 
     // Run the expiry function at every configured interval time
     const { expiryCheckInterval } = this.config;
@@ -42,7 +49,7 @@ export default class Expirer {
    * Expiry function
    * */
   expire = () => {
-    checkIfInstanceIsDisposed(this.instanceDisposed);
+    checkIfInstanceIsDisposed(this.disposed);
 
     const time = Date.now();
 
@@ -66,7 +73,7 @@ export default class Expirer {
    * @param {Function} onExpire Expiry callback, called when Date.now() ~= time
    * */
   add(time, key, onExpire) {
-    checkIfInstanceIsDisposed(this.instanceDisposed);
+    checkIfInstanceIsDisposed(this.disposed);
 
     if (!this.queue[time]) {
       this.queue[time] = [];
@@ -84,7 +91,7 @@ export default class Expirer {
    * @param {String} key Cache key to remove
    * */
   remove(time, key) {
-    checkIfInstanceIsDisposed(this.instanceDisposed);
+    checkIfInstanceIsDisposed(this.disposed);
 
     const queue = this.queue[time];
 
@@ -109,12 +116,12 @@ export default class Expirer {
    *    - Clear expirer timer
    * */
   dispose() {
-    checkIfInstanceIsDisposed(this.instanceDisposed);
+    checkIfInstanceIsDisposed(this.disposed);
 
     clearInterval(this.timer);
     this.timer = null;
     this.queue = {};
-    this.instanceDisposed = true;
+    this.disposed = true;
 
     return true;
   }

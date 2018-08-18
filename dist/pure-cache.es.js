@@ -37,25 +37,6 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
-function _objectSpread(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-    var ownKeys = Object.keys(source);
-
-    if (typeof Object.getOwnPropertySymbols === 'function') {
-      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-      }));
-    }
-
-    ownKeys.forEach(function (key) {
-      _defineProperty(target, key, source[key]);
-    });
-  }
-
-  return target;
-}
-
 /**
  * Events list
  */
@@ -73,11 +54,31 @@ var checkIfInstanceIsDisposed = function checkIfInstanceIsDisposed(instanceDispo
   }
 };
 
+/**
+ * Default config
+ * */
+
+var defaultConfig = {
+  // By default, check for cache expiry every 100 ms
+  // Reducing this value might create performance issues
+  expiryCheckInterval: 100
+};
+
 var Expirer =
 /*#__PURE__*/
 function () {
   /**
-   * Default config
+   * Expirer queue
+   * */
+
+  /**
+   * Instance dispose status
+   * */
+
+  /**
+   * Store last expired time to navigate from current expired time to last expired time
+   * Set initial value to current time - 1
+   * Don't set to 0 as expiry function will loop from current time to 0
    * */
   function Expirer() {
     var _this = this;
@@ -88,14 +89,12 @@ function () {
 
     _defineProperty(this, "queue", {});
 
-    _defineProperty(this, "defaultConfig", {
-      // By default, check for cache expiry every 100 ms
-      // Reducing this value might create performance issues
-      expiryCheckInterval: 100
-    });
+    _defineProperty(this, "disposed", false);
+
+    _defineProperty(this, "lastExpiredTime", Date.now() - 1);
 
     _defineProperty(this, "expire", function () {
-      checkIfInstanceIsDisposed(_this.instanceDisposed);
+      checkIfInstanceIsDisposed(_this.disposed);
       var time = Date.now();
 
       for (var t = time; t >= _this.lastExpiredTime; t -= 1) {
@@ -115,13 +114,7 @@ function () {
     });
 
     // Configuration
-    this.config = _objectSpread({}, this.defaultConfig, config); // Instance dispose status
-
-    this.instanceDisposed = false; // Store last expired time to navigate from current expired time to last expired time
-    // Set initial value to current time - 1
-    // Don't set to 0 as expiry function will loop from current time to 0
-
-    this.lastExpiredTime = Date.now() - 1; // Run the expiry function at every configured interval time
+    this.config = Object.assign({}, defaultConfig, config); // Run the expiry function at every configured interval time
 
     var expiryCheckInterval = this.config.expiryCheckInterval;
     this.timer = setInterval(this.expire, expiryCheckInterval);
@@ -142,7 +135,7 @@ function () {
      * @param {Function} onExpire Expiry callback, called when Date.now() ~= time
      * */
     value: function add(time, key, onExpire) {
-      checkIfInstanceIsDisposed(this.instanceDisposed);
+      checkIfInstanceIsDisposed(this.disposed);
 
       if (!this.queue[time]) {
         this.queue[time] = [];
@@ -164,7 +157,7 @@ function () {
   }, {
     key: "remove",
     value: function remove(time, key) {
-      checkIfInstanceIsDisposed(this.instanceDisposed);
+      checkIfInstanceIsDisposed(this.disposed);
       var queue = this.queue[time];
 
       if (queue) {
@@ -194,17 +187,31 @@ function () {
   }, {
     key: "dispose",
     value: function dispose() {
-      checkIfInstanceIsDisposed(this.instanceDisposed);
+      checkIfInstanceIsDisposed(this.disposed);
       clearInterval(this.timer);
       this.timer = null;
       this.queue = {};
-      this.instanceDisposed = true;
+      this.disposed = true;
       return true;
     }
   }]);
 
   return Expirer;
 }();
+
+/**
+ * Default config
+ * */
+
+var defaultConfig$1 = {
+  // Default cache expiry time, 60000ms(60s) by default
+  // Set `false` to disable expiry(This beats the purpose of cache, the data is store until the instance is disposed)
+  // Note: Falsy values like `0` will be treated as `false`
+  defaultCacheExpiryIn: 60000,
+  // By default, check for cache expiry every 100 ms
+  // Reducing this value might create performance issues
+  expiryCheckInterval: 100
+};
 
 var PureCache =
 /*#__PURE__*/
@@ -214,7 +221,7 @@ function () {
    * */
 
   /**
-   * Default config
+   * Instance dispose status
    * */
   function PureCache() {
     var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -223,18 +230,10 @@ function () {
 
     _defineProperty(this, "cacheStore", {});
 
-    _defineProperty(this, "defaultConfig", {
-      // Default cache expiry time, 60000ms(60s) by default
-      // Set `false` to disable expiry(This beats the purpose of cache, the data is store until the instance is disposed)
-      // Note: Falsy values like `0` will be treated as `false`
-      defaultCacheExpiryIn: 60000,
-      // By default, check for cache expiry every 100 ms
-      // Reducing this value might create performance issues
-      expiryCheckInterval: 100
-    });
+    _defineProperty(this, "disposed", false);
 
     // Configuration
-    this.config = _objectSpread({}, this.defaultConfig, config); // Event listeners
+    this.config = Object.assign({}, defaultConfig$1, config); // Event listeners
 
     var _mitt = mitt(),
         on = _mitt.on,
@@ -245,9 +244,7 @@ function () {
     this.on = _ref[0];
     this.off = _ref[1];
     this.emit = _ref[2];
-    // Instance dispose status
-    this.instanceDisposed = false; // Create cache expirer instance, which maintains its own expiry queue
-
+    // Create cache expirer instance, which maintains its own expiry queue
     var expiryCheckInterval = this.config.expiryCheckInterval;
     this.cacheExpirer = new Expirer({
       expiryCheckInterval: expiryCheckInterval
@@ -270,7 +267,7 @@ function () {
       var key = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
       var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
       var expiryIn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.config.defaultCacheExpiryIn;
-      checkIfInstanceIsDisposed(this.instanceDisposed); // Remove existing values in the key(if any)
+      checkIfInstanceIsDisposed(this.disposed); // Remove existing values in the key(if any)
 
       if (this.cacheStore[key]) {
         this.remove(key);
@@ -319,7 +316,7 @@ function () {
     key: "get",
     value: function get() {
       var key = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
-      checkIfInstanceIsDisposed(this.instanceDisposed);
+      checkIfInstanceIsDisposed(this.disposed);
       var target = this.cacheStore[key];
 
       if (target) {
@@ -341,7 +338,7 @@ function () {
   }, {
     key: "remove",
     value: function remove(key) {
-      checkIfInstanceIsDisposed(this.instanceDisposed);
+      checkIfInstanceIsDisposed(this.disposed);
       var target = this.cacheStore[key];
 
       if (target) {
@@ -370,13 +367,13 @@ function () {
     value: function dispose() {
       var _this2 = this;
 
-      checkIfInstanceIsDisposed(this.instanceDisposed);
+      checkIfInstanceIsDisposed(this.disposed);
       Object.keys(this.cacheStore).forEach(function (key) {
         return _this2.remove(key);
       });
       this.emit(Events.CLEAR, {});
       this.cacheExpirer.dispose();
-      this.instanceDisposed = true;
+      this.disposed = true;
       return true;
     }
   }]);

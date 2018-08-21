@@ -1,3 +1,9 @@
+import mitt from "mitt";
+import Events from "./constants/events";
+import InMemoryExpirer from "./inMemoryExpirer";
+import checkIfInstanceIsDisposed from "./utils/checkInstanceDisposal";
+import defaultConfig from "./constants/pureCacheDefaultConfig";
+
 /**
  * pure-cache: Cache with confidence 🎉 Ultra fast in-memory JavaScript cache with near realtime cache expiry feature ⚡
  *
@@ -8,35 +14,7 @@
  *      ...
  *    }
  */
-import mitt from "mitt";
-import Events from "./constants/events";
-import InMemoryExpirer from "./inMemoryExpirer";
-import checkIfInstanceIsDisposed from "./utils/checkInstanceDisposal";
-
-/**
- * Default config
- * */
-const defaultConfig = {
-  // Default cache expiry time, 60000ms(60s) by default
-  // Set `false` to disable expiry(This beats the purpose of cache, the data is store until the instance is disposed)
-  // Note: Falsy values like `0` will be treated as `false`
-  defaultCacheExpiryIn: 60000,
-  // By default, check for cache expiry every 100 ms
-  // Reducing this value might create performance issues
-  expiryCheckInterval: 100
-};
-
-export default class PureCache {
-  /**
-   * Cache store
-   * */
-  cacheStore = {};
-
-  /**
-   * Instance dispose status
-   * */
-  disposed = false;
-
+class PureCache {
   constructor(config = {}, Expirer = InMemoryExpirer) {
     // Configuration
     this.config = Object.assign({}, defaultConfig, config);
@@ -45,17 +23,27 @@ export default class PureCache {
     const { on, off, emit } = mitt();
     [this.on, this.off, this.emit] = [on, off, emit];
 
+    // Cache store
+    this.cacheStore = {};
+
+    // Instance dispose status
+    this.disposed = false;
+
     // Create cache expirer instance, which maintains its own expiry queue
     const { expiryCheckInterval } = this.config;
     this.cacheExpirer = new Expirer({ expiryCheckInterval });
   }
 
   /**
-   * Put data into cache
+   * Put data into the cache
    *
    * @param {String} key  Cache key
    * @param {String|Object|*} value Value to be stored against cache key
-   * @param {Number} expiryIn Expiry time for the key, defaults to defaultCacheExpiryIn
+   * @param {Number} expiryIn Expiry time(in ms from now), defaults to `60000ms(60s)`,
+   *                          if set to falsy values(like `0` & `false`), cache will
+   *                          act as simple in-memory data store and data is never expired for the key
+   *
+   * @returns {Object} Newly added Object({ value, addedAt, expiryAt }) with `value` key consists of actual data
    * */
   put(key = "", value = "", expiryIn = this.config.defaultCacheExpiryIn) {
     checkIfInstanceIsDisposed(this.disposed);
@@ -91,11 +79,12 @@ export default class PureCache {
   }
 
   /**
-   * Get data from cache
+   * Get data from the cache
    *
    * @param {String} key  Cache key
    *
-   * @returns {Object} Object { value, addedAt, expiryAt }
+   * @returns {Object|null} If `key` found, returns Object({ value, addedAt, expiryAt })
+   *                        with `value` key consists of actual data, else returns `null`
    * */
   get(key = "") {
     checkIfInstanceIsDisposed(this.disposed);
@@ -111,9 +100,11 @@ export default class PureCache {
   }
 
   /**
-   * Remove data from cache
+   * Remove data from the cache
    *
-   * @param {String} key  Cache key to be removed
+   * @param {String} key  Cache key to be removed from the cache
+   *
+   * @returns {Boolean} If `key` found, returns `true`,else returns `false`
    * */
   remove(key) {
     checkIfInstanceIsDisposed(this.disposed);
@@ -135,9 +126,9 @@ export default class PureCache {
   }
 
   /**
-   * Cleanup
-   *    - Clear entire cache
-   *    - Stop expirer
+   * Cleanup - Clear entire cache & stop expirer
+   *
+   * @returns {Boolean} Returns `true`
    * */
   dispose() {
     checkIfInstanceIsDisposed(this.disposed);
@@ -150,3 +141,5 @@ export default class PureCache {
     return true;
   }
 }
+
+export default PureCache;

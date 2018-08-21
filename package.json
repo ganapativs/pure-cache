@@ -1,6 +1,6 @@
 {
   "name": "pure-cache",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "Cache with confidence 🎉 Ultra fast in-memory JavaScript cache with near realtime cache expiry feature ⚡",
   "main": "dist/pure-cache.js",
   "module": "dist/pure-cache.es.js",
@@ -29,17 +29,18 @@
     "pretest": "yarn run lint",
     "test": "NODE_ENV=test mocha --require @babel/register ./test/**/*.js",
     "posttest": "yarn run size",
-    "prepublishOnly": "yarn run test",
+    "jsdoc": "mkdir -p docs && jsdoc2md src/pureCache.js > docs/pureCache.md && jsdoc2md src/inMemoryExpirer.js > docs/inMemoryExpirer.md",
+    "prepublishOnly": "yarn run test && yarn run docs",
     "size": "size-limit"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn build && git add dist"
+      "pre-commit": "yarn build && yarn run jsdoc && git add dist docs"
     }
   },
   "size-limit": [
     {
-      "limit": "1.5 KB",
+      "limit": "1.2 KB",
       "path": "dist/pure-cache.js"
     }
   ],
@@ -57,6 +58,7 @@
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-prettier": "^2.6.2",
     "husky": "^1.0.0-rc.13",
+    "jsdoc-to-markdown": "^4.0.1",
     "mocha": "^5.2.0",
     "prettier": "^1.14.0",
     "rollup": "^0.64.1",

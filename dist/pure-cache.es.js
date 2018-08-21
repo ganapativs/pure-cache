@@ -55,43 +55,33 @@ var checkIfInstanceIsDisposed = function checkIfInstanceIsDisposed(instanceDispo
 };
 
 /**
- * Default config
+ * In memory default config
  * */
-
-var defaultConfig = {
+var inMemoryDefaultConfig = {
   // By default, check for cache expiry every 100 ms
   // Reducing this value might create performance issues
   expiryCheckInterval: 100
 };
 
+/**
+ * Near realtime expiry handler
+ *
+ * queue Structure:
+ *  {
+ *    time1: [{key: key1, onExpire: () => {}}, {key: key2, onExpire: () => {}}],
+ *    time2: [{key: key3, onExpire: () => {}}]
+ *  }
+ */
+
 var InMemoryExpirer =
 /*#__PURE__*/
 function () {
-  /**
-   * Expirer queue
-   * */
-
-  /**
-   * Instance dispose status
-   * */
-
-  /**
-   * Store last expired time to navigate from current expired time to last expired time
-   * Set initial value to current time - 1
-   * Don't set to 0 as expiry function will loop from current time to 0
-   * */
   function InMemoryExpirer() {
     var _this = this;
 
     var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
     _classCallCheck(this, InMemoryExpirer);
-
-    _defineProperty(this, "queue", {});
-
-    _defineProperty(this, "disposed", false);
-
-    _defineProperty(this, "lastExpiredTime", Date.now() - 1);
 
     _defineProperty(this, "expire", function () {
       checkIfInstanceIsDisposed(_this.disposed);
@@ -114,7 +104,15 @@ function () {
     });
 
     // Configuration
-    this.config = Object.assign({}, defaultConfig, config); // Run the expiry function at every configured interval time
+    this.config = Object.assign({}, inMemoryDefaultConfig, config); // Expirer queue
+
+    this.queue = {}; // Instance dispose status
+
+    this.disposed = false; // Store last expired time to navigate from current expired time to last expired time
+    // Set initial value to current time - 1
+    // Don't set to 0 as expiry function will loop from current time to 0
+
+    this.lastExpiredTime = Date.now() - 1; // Run the expiry function at every configured interval time
 
     var expiryCheckInterval = this.config.expiryCheckInterval;
     this.timer = setInterval(this.expire, expiryCheckInterval);
@@ -131,7 +129,7 @@ function () {
      * Add to expiry queue
      *
      * @param {Number} time  When to expire
-     * @param {String} key Cache key
+     * @param {String} key key to store expiry data against
      * @param {Function} onExpire Expiry callback, called when Date.now() ~= time
      * */
     value: function add(time, key, onExpire) {
@@ -151,7 +149,7 @@ function () {
      * Remove specific key from expiry queue
      *
      * @param {Number} time  Expiry time
-     * @param {String} key Cache key to remove
+     * @param {String} key key to remove from the expiry queue
      * */
 
   }, {
@@ -179,9 +177,7 @@ function () {
       return false;
     }
     /**
-     * Cleanup
-     *    - Empty queue
-     *    - Clear expirer timer
+     * Cleanup - Empty queue & clear expirer timer
      * */
 
   }, {
@@ -200,10 +196,9 @@ function () {
 }();
 
 /**
- * Default config
+ * Pure cache default config
  * */
-
-var defaultConfig$1 = {
+var pureCacheDefaultConfig = {
   // Default cache expiry time, 60000ms(60s) by default
   // Set `false` to disable expiry(This beats the purpose of cache, the data is store until the instance is disposed)
   // Note: Falsy values like `0` will be treated as `false`
@@ -213,28 +208,28 @@ var defaultConfig$1 = {
   expiryCheckInterval: 100
 };
 
+/**
+ * pure-cache: Cache with confidence 🎉 Ultra fast in-memory JavaScript cache with near realtime cache expiry feature ⚡
+ *
+ * cacheStore Structure:
+ *    {
+ *      key1: { value: value1, addedAt: 1527012874728, expiryAt: 1527012879729 },
+ *      key2: { value: value2, addedAt: 1527012908893, expiryAt: 1527012909880 },
+ *      ...
+ *    }
+ */
+
 var PureCache =
 /*#__PURE__*/
 function () {
-  /**
-   * Cache store
-   * */
-
-  /**
-   * Instance dispose status
-   * */
   function PureCache() {
     var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     var Expirer = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : InMemoryExpirer;
 
     _classCallCheck(this, PureCache);
 
-    _defineProperty(this, "cacheStore", {});
-
-    _defineProperty(this, "disposed", false);
-
     // Configuration
-    this.config = Object.assign({}, defaultConfig$1, config); // Event listeners
+    this.config = Object.assign({}, pureCacheDefaultConfig, config); // Event listeners
 
     var _mitt = mitt(),
         on = _mitt.on,
@@ -245,18 +240,26 @@ function () {
     this.on = _ref[0];
     this.off = _ref[1];
     this.emit = _ref[2];
-    // Create cache expirer instance, which maintains its own expiry queue
+    // Cache store
+    this.cacheStore = {}; // Instance dispose status
+
+    this.disposed = false; // Create cache expirer instance, which maintains its own expiry queue
+
     var expiryCheckInterval = this.config.expiryCheckInterval;
     this.cacheExpirer = new Expirer({
       expiryCheckInterval: expiryCheckInterval
     });
   }
   /**
-   * Put data into cache
+   * Put data into the cache
    *
    * @param {String} key  Cache key
    * @param {String|Object|*} value Value to be stored against cache key
-   * @param {Number} expiryIn Expiry time for the key, defaults to defaultCacheExpiryIn
+   * @param {Number} expiryIn Expiry time(in ms from now), defaults to `60000ms(60s)`,
+   *                          if set to falsy values(like `0` & `false`), cache will
+   *                          act as simple in-memory data store and data is never expired for the key
+   *
+   * @returns {Object} Newly added Object({ value, addedAt, expiryAt }) with `value` key consists of actual data
    * */
 
 
@@ -306,11 +309,12 @@ function () {
       return target;
     }
     /**
-     * Get data from cache
+     * Get data from the cache
      *
      * @param {String} key  Cache key
      *
-     * @returns {Object} Object { value, addedAt, expiryAt }
+     * @returns {Object|null} If `key` found, returns Object({ value, addedAt, expiryAt })
+     *                        with `value` key consists of actual data, else returns `null`
      * */
 
   }, {
@@ -331,9 +335,11 @@ function () {
       return null;
     }
     /**
-     * Remove data from cache
+     * Remove data from the cache
      *
-     * @param {String} key  Cache key to be removed
+     * @param {String} key  Cache key to be removed from the cache
+     *
+     * @returns {Boolean} If `key` found, returns `true`,else returns `false`
      * */
 
   }, {
@@ -358,9 +364,9 @@ function () {
       return false;
     }
     /**
-     * Cleanup
-     *    - Clear entire cache
-     *    - Stop expirer
+     * Cleanup - Clear entire cache & stop expirer
+     *
+     * @returns {Boolean} Returns `true`
      * */
 
   }, {

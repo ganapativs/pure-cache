@@ -1,3 +1,6 @@
+import checkIfInstanceIsDisposed from "./utils/checkInstanceDisposal";
+import defaultConfig from "./constants/inMemoryDefaultConfig";
+
 /**
  * Near realtime expiry handler
  *
@@ -7,38 +10,21 @@
  *    time2: [{key: key3, onExpire: () => {}}]
  *  }
  */
-import checkIfInstanceIsDisposed from "./utils/checkInstanceDisposal";
-
-/**
- * Default config
- * */
-const defaultConfig = {
-  // By default, check for cache expiry every 100 ms
-  // Reducing this value might create performance issues
-  expiryCheckInterval: 100
-};
-
-export default class InMemoryExpirer {
-  /**
-   * Expirer queue
-   * */
-  queue = {};
-
-  /**
-   * Instance dispose status
-   * */
-  disposed = false;
-
-  /**
-   * Store last expired time to navigate from current expired time to last expired time
-   * Set initial value to current time - 1
-   * Don't set to 0 as expiry function will loop from current time to 0
-   * */
-  lastExpiredTime = Date.now() - 1;
-
+class InMemoryExpirer {
   constructor(config = {}) {
     // Configuration
     this.config = Object.assign({}, defaultConfig, config);
+
+    // Expirer queue
+    this.queue = {};
+
+    // Instance dispose status
+    this.disposed = false;
+
+    // Store last expired time to navigate from current expired time to last expired time
+    // Set initial value to current time - 1
+    // Don't set to 0 as expiry function will loop from current time to 0
+    this.lastExpiredTime = Date.now() - 1;
 
     // Run the expiry function at every configured interval time
     const { expiryCheckInterval } = this.config;
@@ -69,7 +55,7 @@ export default class InMemoryExpirer {
    * Add to expiry queue
    *
    * @param {Number} time  When to expire
-   * @param {String} key Cache key
+   * @param {String} key key to store expiry data against
    * @param {Function} onExpire Expiry callback, called when Date.now() ~= time
    * */
   add(time, key, onExpire) {
@@ -88,7 +74,7 @@ export default class InMemoryExpirer {
    * Remove specific key from expiry queue
    *
    * @param {Number} time  Expiry time
-   * @param {String} key Cache key to remove
+   * @param {String} key key to remove from the expiry queue
    * */
   remove(time, key) {
     checkIfInstanceIsDisposed(this.disposed);
@@ -111,9 +97,7 @@ export default class InMemoryExpirer {
   }
 
   /**
-   * Cleanup
-   *    - Empty queue
-   *    - Clear expirer timer
+   * Cleanup - Empty queue & clear expirer timer
    * */
   dispose() {
     checkIfInstanceIsDisposed(this.disposed);
@@ -126,3 +110,5 @@ export default class InMemoryExpirer {
     return true;
   }
 }
+
+export default InMemoryExpirer;

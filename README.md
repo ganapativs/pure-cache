@@ -2,7 +2,9 @@
 
 Cache with confidence 🎉
 
-Ultra fast in-memory JavaScript cache with near realtime cache expiry feature ⚡
+Ultra fast & Tiny(around 1kb gzipped) in-memory JavaScript cache with near realtime cache expiry feature ⚡
+
+> Works in any JavaScript runtime(node or browser) ✨
 
 [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
 [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ganapativs/pure-cache/)
@@ -10,7 +12,15 @@ Ultra fast in-memory JavaScript cache with near realtime cache expiry feature �
 [![npm version](https://badge.fury.io/js/pure-cache.svg)](https://badge.fury.io/js/pure-cache)
 [![GitHub version](https://badge.fury.io/gh/ganapativs%2Fpure-cache.svg)](https://badge.fury.io/gh/ganapativs%2Fpure-cache)
 
-## Installation
+## Table of Contents
+
+- [Install](#install)
+- [Usage](#usage)
+- [API](#api)
+- [Contribute](#contribute)
+- [License](#license)
+
+## Install
 
 ### NPM
 
@@ -30,7 +40,7 @@ yarn add pure-cache
 <script src="https://unpkg.com/pure-cache/dist/pure-cache.umd.js"></script>
 ```
 
-## Basic Usage
+## Usage
 
 ```js
 import PureCache from 'pure-cache';
@@ -62,12 +72,39 @@ cacheStore.get('foo'); // null
 // remove listeners after you are done
 cacheStore.off('expiry', onExpiry);
 
+// IMPORTANT! When done, make sure you cleanup the instance
+cacheStore.dispose();
+
 ```
 
-## Todo
+## API
 
-- [ ] Update documentation with events and more examples
+- [Pure Cache](docs/pureCache.md)
+- [In Memory Expirer (Internal)](docs/inMemoryExpirer.md)
+
+## Contribute
+
+Thanks for taking time to contribute, please read [docs](docs) and checkout [src](src) to understand how things work.
+
+### Reporting Issues
+
+Found a problem? Want a new feature? First of all see if your issue or idea has [already been reported](../../issues).
+If don't, just open a [new clear and descriptive issue](../../issues/new).
+
+### Submitting pull requests
+
+Pull requests are the greatest contributions, so be sure they are focused in scope, and do avoid unrelated commits.
+
+- Fork it!
+- Clone your fork: `git clone https://github.com/<your-username>/pure-cache`
+- Navigate to the newly cloned directory: `cd pure-cache`
+- Create a new branch for the new feature: `git checkout -b my-new-feature`
+- Install the tools necessary for development: `yarn`
+- Make your changes.
+- Commit your changes: `git commit -am 'Add some feature'`
+- Push to the branch: `git push origin my-new-feature`
+- Submit a pull request with full remarks documenting your changes.
 
 ## License
 
-MIT © [Ganapati V S](http://meetguns.com)
+[MIT License](https://opensource.org/licenses/MIT) © [Ganapati V S](http://meetguns.com)

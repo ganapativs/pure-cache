@@ -54,7 +54,7 @@ var Events = {
 
 var checkIfInstanceIsDisposed = function checkIfInstanceIsDisposed(instanceDisposed) {
   if (instanceDisposed) {
-    throw new Error("This instance is already disposed. Please create new instance and try again.");
+    throw new Error("Cannot use disposed instance.");
   }
 };
 

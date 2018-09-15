@@ -291,12 +291,12 @@ function () {
       if (expiryAt) {
         // Remove value from cache and trigger expiry event
         var onExpire = function onExpire() {
+          _this.remove(key);
+
           _this.emit(Events.EXPIRY, {
             key: key,
-            data: target
+            data: _this.cacheStore[key]
           });
-
-          _this.remove(key);
         };
 
         this.cacheExpirer.add(expiryAt, key, onExpire);

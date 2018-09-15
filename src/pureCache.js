@@ -64,11 +64,11 @@ class PureCache {
     if (expiryAt) {
       // Remove value from cache and trigger expiry event
       const onExpire = () => {
+        this.remove(key);
         this.emit(Events.EXPIRY, {
           key,
-          data: target
+          data: this.cacheStore[key]
         });
-        this.remove(key);
       };
 
       this.cacheExpirer.add(expiryAt, key, onExpire);

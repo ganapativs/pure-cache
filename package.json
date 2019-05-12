@@ -58,7 +58,7 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-prettier": "^3.0.0",
     "husky": "^1.0.0-rc.14",
-    "jsdoc-to-markdown": "^4.0.1",
+    "jsdoc-to-markdown": "^5.0.0",
     "mocha": "^5.2.0",
     "prettier": "^1.14.2",
     "rollup": "^0.67.0",

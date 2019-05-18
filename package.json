@@ -57,7 +57,7 @@
     "eslint-plugin-babel": "^5.2.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-prettier": "^3.0.0",
-    "husky": "^1.0.0-rc.14",
+    "husky": "^2.0.0",
     "jsdoc-to-markdown": "^4.0.1",
     "mocha": "^6.0.0",
     "prettier": "^1.14.2",

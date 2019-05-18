@@ -1,6 +1,6 @@
 {
   "name": "pure-cache",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Cache with confidence 🎉 Ultra fast in-memory JavaScript cache with near realtime cache expiry feature ⚡",
   "main": "dist/pure-cache.js",
   "module": "dist/pure-cache.es.js",

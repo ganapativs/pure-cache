@@ -68,7 +68,7 @@
     "rollup-plugin-uglify": "^6.0.2",
     "sinon": "^7.3.2",
     "sinon-chai": "^3.3.0",
-    "size-limit": "^1.3.2"
+    "size-limit": "^1.3.7"
   },
   "dependencies": {
     "mitt": "^1.1.3"

@@ -71,6 +71,6 @@
     "size-limit": "^1.3.2"
   },
   "dependencies": {
-    "mitt": "^1.1.3"
+    "mitt": "^1.2.1"
   }
 }

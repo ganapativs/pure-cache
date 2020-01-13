@@ -17,7 +17,7 @@ import defaultConfig from "./constants/pureCacheDefaultConfig";
 class PureCache {
   constructor(config = {}, Expirer = InMemoryExpirer) {
     // Configuration
-    this.config = Object.assign({}, defaultConfig, config);
+    this.config = { ...defaultConfig, ...config };
 
     // Event listeners
     const { on, off, emit } = mitt();

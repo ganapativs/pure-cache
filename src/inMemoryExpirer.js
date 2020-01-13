@@ -13,7 +13,7 @@ import defaultConfig from "./constants/inMemoryDefaultConfig";
 class InMemoryExpirer {
   constructor(config = {}) {
     // Configuration
-    this.config = Object.assign({}, defaultConfig, config);
+    this.config = { ...defaultConfig, ...config };
 
     // Expirer queue
     this.queue = {};

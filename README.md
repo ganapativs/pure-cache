@@ -2,7 +2,7 @@
 
 Cache with confidence 🎉
 
-Ultra fast & tiny(**around 1kb gzipped**) in-memory JavaScript cache with near realtime cache expiry feature ⚡
+Ultra fast & tiny(**around 1.22kb gzipped**) in-memory JavaScript cache with near realtime cache expiry feature ⚡
 
 > Works in any JavaScript runtime(node or browser) ✨
 

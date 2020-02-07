@@ -40,36 +40,37 @@
   },
   "size-limit": [
     {
-      "limit": "1.2 KB",
+      "limit": "1.25 KB",
       "path": "dist/pure-cache.js"
     }
   ],
   "devDependencies": {
-    "@babel/core": "^7.8.0",
-    "@babel/plugin-proposal-class-properties": "^7.8.0",
-    "@babel/preset-env": "^7.8.2",
-    "@babel/register": "^7.8.0",
-    "@size-limit/preset-small-lib": "^3.0.0",
+    "@babel/core": "^7.8.4",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/preset-env": "^7.8.4",
+    "@babel/register": "^7.8.3",
+    "@size-limit/preset-small-lib": "^4.0.1",
     "babel-eslint": "^10.0.3",
     "chai": "^4.2.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-config-prettier": "^6.9.0",
+    "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-prettier": "^3.1.2",
-    "husky": "^4.0.7",
+    "husky": "^4.2.1",
     "jsdoc-to-markdown": "^5.0.3",
-    "mocha": "^7.0.0",
+    "mocha": "^7.0.1",
     "prettier": "^1.19.1",
-    "rollup": "^1.29.0",
+    "rollup": "^1.31.0",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.2.0",
     "rollup-plugin-uglify": "^6.0.4",
-    "sinon": "^8.0.4",
-    "sinon-chai": "^3.4.0"
+    "sinon": "^8.1.1",
+    "sinon-chai": "^3.4.0",
+    "size-limit": "^4.0.1"
   },
   "dependencies": {
     "mitt": "^1.2.0"

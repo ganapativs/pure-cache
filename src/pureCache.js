@@ -67,7 +67,7 @@ class PureCache {
         this.remove(key);
         this.emit(Events.EXPIRY, {
           key,
-          data: this.cacheStore[key]
+          data: this.cacheStore[key],
         });
       };
 
@@ -133,7 +133,7 @@ class PureCache {
   dispose() {
     checkIfInstanceIsDisposed(this.disposed);
 
-    Object.keys(this.cacheStore).forEach(key => this.remove(key));
+    Object.keys(this.cacheStore).forEach((key) => this.remove(key));
     this.emit(Events.CLEAR, {});
     this.cacheExpirer.dispose();
     this.disposed = true;

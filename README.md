@@ -2,7 +2,7 @@
 
 Cache with confidence 🎉
 
-Ultra fast & tiny(**around 1.22kb gzipped**) in-memory JavaScript cache with near realtime cache expiry feature ⚡
+Ultra fast & tiny(**around 1.28kb gzipped**) in-memory JavaScript cache with near realtime cache expiry feature ⚡
 
 > Works in any JavaScript runtime(node or browser) ✨
 
@@ -45,16 +45,21 @@ yarn add pure-cache
 ## Basic usage
 
 - **Import library**
+
     ```js
     import PureCache from 'pure-cache';
     // or const PureCache = require('pure-cache');
     ```
+
 - **Create cacheStore instance**
+
     ```js
     // Create instance of cache store and set cache expiry timeout to 500ms
     const cacheStore = new PureCache({ expiryCheckInterval: 500 });
     ```
+
 - **Setup expiry handler**
+
     ```js
     // Setup a expiry listener, this will be called when data expires
     const onExpiry = ({ key, data: { value, expiryAt } }) => {
@@ -63,7 +68,9 @@ yarn add pure-cache
     };
     cacheStore.on('expiry', onExpiry);
     ```
+
 - **Put/Get data from cacheStore**
+
     ```js
     // Put 'bar' data into 'foo' key in cache and configure it to expire after 30s
     cacheStore.put('foo', 'bar', 30000);
@@ -71,7 +78,9 @@ yarn add pure-cache
     // Get 'foo' key value from cache
     cacheStore.get('foo'); // { value: 'bar', addedAt: 1527052395294, expiryAt: 1527052425294 }
     ```
+
 - **Wait for expiry**
+
     ```js
     // Wait till expiry time(basically 30+ seconds in this case)
     const wait = t => new Promise(r => setTimeout(r, t));
@@ -80,7 +89,9 @@ yarn add pure-cache
     // Now the cache will return null value for 'foo' key
     cacheStore.get('foo'); // null
     ```
+
 - **Cleanup listeners**
+
     ```js
     // remove listeners after you are done
     cacheStore.off('expiry', onExpiry);
@@ -88,38 +99,47 @@ yarn add pure-cache
     // IMPORTANT! When done, make sure you cleanup the instance
     cacheStore.dispose();
     ```
-Checkout [API](#api) for advanced usage.
 
+Checkout [API](#api) for advanced usage.
 
 ## Events
 
 Events are triggered when operations like add, get, remove, clear are performed on cacheStore or when the cache expires.
 
 - **expiry**
+
     ```js
     cacheStore.on('expiry', ({ key, data: { value, addedAt, expiryAt } }) => {
         // ...
     });
     ```
+
 - **add**
+
     ```js
     cacheStore.on('add', ({ key, data: { value, addedAt, expiryAt } }) => {
         // ...
     });
     ```
+
 - **get**
+
     ```js
     cacheStore.on('get', ({ key, data: { value, addedAt, expiryAt } }) => {
         // ...
     });
     ```
+
 - **remove**
+
     ```js
     cacheStore.on('remove', ({ key, data: { value, addedAt, expiryAt } }) => {
         // ...
     });
     ```
+
 - **clear**
+
     ```js
     cacheStore.on('clear', () => {
         // ...

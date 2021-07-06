@@ -8,9 +8,9 @@ const getPlugins = () => [
   resolve(),
   babel({
     comments: true,
-    exclude: "node_modules/**"
+    exclude: "node_modules/**",
   }),
-  commonjs()
+  commonjs(),
 ];
 
 export default [
@@ -20,9 +20,9 @@ export default [
       name: "PureCache",
       file: pkg.browser,
       format: "umd",
-      sourcemap: true
+      sourcemap: true,
     },
-    plugins: getPlugins().concat([terser()])
+    plugins: getPlugins().concat([terser()]),
   },
   {
     input: "src/pureCache.js",
@@ -31,14 +31,15 @@ export default [
       {
         file: pkg.main,
         format: "cjs",
-        sourcemap: true
+        sourcemap: true,
+        exports: "auto",
       },
       {
         file: pkg.module,
         format: "es",
-        sourcemap: true
-      }
+        sourcemap: true,
+      },
     ],
-    plugins: getPlugins()
-  }
+    plugins: getPlugins(),
+  },
 ];

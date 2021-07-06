@@ -22,33 +22,23 @@ describe("PureCache ✨", () => {
 
   describe("Instance creation", () => {
     it("should have a empty cache store", () => {
-      expect(instance)
-        .to.have.a.property("cacheStore")
-        .that.is.a("object");
+      expect(instance).to.have.a.property("cacheStore").that.is.a("object");
     });
 
     it("should have `on` method", () => {
-      expect(instance)
-        .to.have.a.property("on")
-        .that.is.a("function");
+      expect(instance).to.have.a.property("on").that.is.a("function");
     });
 
     it("should have `off` method", () => {
-      expect(instance)
-        .to.have.a.property("off")
-        .that.is.a("function");
+      expect(instance).to.have.a.property("off").that.is.a("function");
     });
 
     it("should have `emit` method", () => {
-      expect(instance)
-        .to.have.a.property("emit")
-        .that.is.a("function");
+      expect(instance).to.have.a.property("emit").that.is.a("function");
     });
 
     it("should have a expirer instance", () => {
-      expect(instance)
-        .to.have.a.property("cacheExpirer")
-        .that.is.a("object");
+      expect(instance).to.have.a.property("cacheExpirer").that.is.a("object");
     });
   });
 
@@ -92,9 +82,7 @@ describe("PureCache ✨", () => {
       instance.put(key, value, expireIn);
       const calledWith = onAdd.getCall(0).args[0];
 
-      expect(calledWith)
-        .to.have.a.property("key")
-        .that.is.equals(key);
+      expect(calledWith).to.have.a.property("key").that.is.equals(key);
     });
 
     it("Single key & value - Check value", () => {
@@ -175,7 +163,7 @@ describe("PureCache ✨", () => {
   describe("Remove data", function removeData() {
     this.timeout(6500); // eslint-disable-line babel/no-invalid-this
 
-    it("Single key", done => {
+    it("Single key", (done) => {
       this.timeout(2500); // eslint-disable-line babel/no-invalid-this
 
       const key = "foo";
@@ -192,7 +180,7 @@ describe("PureCache ✨", () => {
       }, 1000);
     });
 
-    it("Multiple keys", done => {
+    it("Multiple keys", (done) => {
       this.timeout(5500); // eslint-disable-line babel/no-invalid-this
       const key1 = "foo";
       const value1 = "bar";
@@ -235,7 +223,7 @@ describe("PureCache ✨", () => {
   describe("Data expiry", function removeData() {
     this.timeout(9000); // eslint-disable-line babel/no-invalid-this
 
-    it("Single key & value", done => {
+    it("Single key & value", (done) => {
       this.timeout(2500); // eslint-disable-line babel/no-invalid-this
 
       const key = "foo";
@@ -250,7 +238,7 @@ describe("PureCache ✨", () => {
       }, 2500);
     });
 
-    it("Multiple keys & values", done => {
+    it("Multiple keys & values", (done) => {
       this.timeout(6000); // eslint-disable-line babel/no-invalid-this
       const key1 = "foo";
       const value1 = "bar";
@@ -273,7 +261,7 @@ describe("PureCache ✨", () => {
   describe("Event should be emitted when data expires", function expire() {
     this.timeout(3000); // eslint-disable-line babel/no-invalid-this
 
-    it("Single key", done => {
+    it("Single key", (done) => {
       this.timeout(2500); // eslint-disable-line babel/no-invalid-this
 
       const key = "foo";

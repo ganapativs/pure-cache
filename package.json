@@ -1,6 +1,6 @@
 {
   "name": "pure-cache",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Cache with confidence 🎉 Ultra fast in-memory JavaScript cache with near realtime cache expiry feature ⚡",
   "main": "dist/pure-cache.js",
   "module": "dist/pure-cache.es.js",
@@ -40,39 +40,39 @@
   },
   "size-limit": [
     {
-      "limit": "1.25 KB",
+      "limit": "1.3 KB",
       "path": "dist/pure-cache.js"
     }
   ],
   "devDependencies": {
-    "@babel/core": "^7.8.4",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/preset-env": "^7.8.4",
-    "@babel/register": "^7.8.3",
-    "@size-limit/preset-small-lib": "^4.0.1",
-    "babel-eslint": "^10.0.3",
-    "chai": "^4.2.0",
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-config-prettier": "^6.10.0",
-    "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-import": "^2.20.1",
-    "eslint-plugin-prettier": "^3.1.2",
-    "husky": "^4.2.1",
-    "jsdoc-to-markdown": "^5.0.3",
-    "mocha": "^7.0.1",
-    "prettier": "^1.19.1",
-    "rollup": "^1.31.0",
-    "rollup-plugin-babel": "^4.3.3",
+    "@babel/core": "^7.14.6",
+    "@babel/plugin-proposal-class-properties": "^7.14.5",
+    "@babel/preset-env": "^7.14.7",
+    "@babel/register": "^7.14.5",
+    "@size-limit/preset-small-lib": "^5.0.1",
+    "babel-eslint": "^10.1.0",
+    "chai": "^4.3.4",
+    "eslint": "^7.30.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-prettier": "^3.4.0",
+    "husky": "^7.0.1",
+    "jsdoc-to-markdown": "^7.0.1",
+    "mocha": "^9.0.2",
+    "prettier": "^2.3.2",
+    "rollup": "^2.52.7",
+    "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-terser": "^5.2.0",
+    "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-uglify": "^6.0.4",
-    "sinon": "^8.1.1",
-    "sinon-chai": "^3.4.0",
-    "size-limit": "^4.0.1"
+    "sinon": "^11.1.1",
+    "sinon-chai": "^3.7.0",
+    "size-limit": "^5.0.1"
   },
   "dependencies": {
-    "mitt": "^1.2.0"
+    "mitt": "^3.0.0"
   }
 }

@@ -22,15 +22,11 @@ describe("InMemoryExpirer ⏳", () => {
 
   describe("Instance creation", () => {
     it("should be a empty queue", () => {
-      expect(instance)
-        .to.have.a.property("queue")
-        .that.is.a("object");
+      expect(instance).to.have.a.property("queue").that.is.a("object");
     });
 
     it("should have a timer running", () => {
-      expect(instance)
-        .to.have.a.property("timer")
-        .that.is.a("object");
+      expect(instance).to.have.a.property("timer").that.is.a("object");
     });
   });
 
@@ -61,15 +57,15 @@ describe("InMemoryExpirer ⏳", () => {
         .that.deep.equals({
           [expiryTime1]: [
             { key: "foo", onExpire: onExpire1 },
-            { key: "xyz", onExpire: onExpire3 }
+            { key: "xyz", onExpire: onExpire3 },
           ],
-          [expiryTime2]: [{ key: "bar", onExpire: onExpire2 }]
+          [expiryTime2]: [{ key: "bar", onExpire: onExpire2 }],
         });
     });
   });
 
   describe("Remove key(s) from expiry queue", () => {
-    it("Single key", done => {
+    it("Single key", (done) => {
       const expiryTime = Date.now() + 2000;
       const onExpire = spy();
       instance.add(expiryTime, "foo", onExpire);
@@ -77,14 +73,12 @@ describe("InMemoryExpirer ⏳", () => {
       setTimeout(() => {
         instance.remove(expiryTime, "foo");
 
-        expect(instance)
-          .to.have.property("queue")
-          .that.deep.equals({});
+        expect(instance).to.have.property("queue").that.deep.equals({});
         done();
       }, 200);
     });
 
-    it("Multiple keys", done => {
+    it("Multiple keys", (done) => {
       const expiryTime1 = Date.now() + 2000;
       const expiryTime2 = Date.now() + 5000;
       const expiryTime3 = Date.now() + 2000;
@@ -102,7 +96,7 @@ describe("InMemoryExpirer ⏳", () => {
         expect(instance)
           .to.have.property("queue")
           .that.deep.equals({
-            [expiryTime3]: [{ key: "xyz", onExpire: onExpire3 }]
+            [expiryTime3]: [{ key: "xyz", onExpire: onExpire3 }],
           });
         done();
       }, 200);
@@ -112,15 +106,13 @@ describe("InMemoryExpirer ⏳", () => {
   describe("Expiry of key(s)", function expiry() {
     this.timeout(6000); // eslint-disable-line babel/no-invalid-this
 
-    it("Single key", done => {
+    it("Single key", (done) => {
       const expiryTime = Date.now() + 2000;
       const onExpire = spy();
       instance.add(expiryTime, "foo", onExpire);
 
       setTimeout(() => {
-        expect(instance)
-          .to.have.property("queue")
-          .that.deep.equals({});
+        expect(instance).to.have.property("queue").that.deep.equals({});
         done();
       }, 2500);
     });
@@ -138,7 +130,7 @@ describe("InMemoryExpirer ⏳", () => {
       }, 2500);
     });
 
-    it("Multiple keys", done => {
+    it("Multiple keys", (done) => {
       const expiryTime1 = Date.now() + 2000;
       const expiryTime2 = Date.now() + 5000;
       const expiryTime3 = Date.now() + 3000;
@@ -153,7 +145,7 @@ describe("InMemoryExpirer ⏳", () => {
         expect(instance)
           .to.have.property("queue")
           .that.deep.equals({
-            [expiryTime2]: [{ key: "bar", onExpire: onExpire2 }]
+            [expiryTime2]: [{ key: "bar", onExpire: onExpire2 }],
           });
         done();
       }, 3500);

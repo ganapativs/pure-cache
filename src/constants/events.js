@@ -6,5 +6,5 @@ export default {
   ADD: "add",
   GET: "get",
   REMOVE: "remove",
-  CLEAR: "clear"
+  CLEAR: "clear",
 };
